@@ -1766,7 +1766,26 @@ async function buscarOportunidades(){
 
     try{
       const r=await fetch(url);
-      const data=await r.json();
+      const rawText=await r.text();
+      // Log raw response for debugging
+      console.log('[SerpAPI RAW '+mat+']', rawText.slice(0,500));
+      let data;
+      try{ data=JSON.parse(rawText); }
+      catch(pe){ throw new Error('JSON parse error: '+rawText.slice(0,200)); }
+      // Show debug panel
+      let dbg=document.getElementById('serp-debug');
+      if(!dbg){
+        dbg=document.createElement('div');
+        dbg.id='serp-debug';
+        dbg.style.cssText='background:#0d0d0d;border:1px solid #333;border-radius:10px;padding:12px;margin-top:10px;font-size:11px;font-family:monospace;max-height:260px;overflow-y:auto;word-break:break-all';
+        document.getElementById('opor-loading').after(dbg);
+      }
+      const dline=document.createElement('div');
+      dline.style.color='#4ade80';
+      dline.style.marginBottom='4px';
+      const preview=JSON.stringify(data).slice(0,600);
+      dline.textContent='['+mat+'] HTTP '+r.status+' | keys: '+Object.keys(data).join(',')+' | shopping_results: '+(data.shopping_results||[]).length+' | preview: '+preview;
+      dbg.appendChild(dline);
 
       if(!r.ok||data.error){
         const msg=(data.error||'SerpAPI error '+r.status);
