@@ -1,0 +1,6 @@
+{
+  "name": "PrintFlow 3D",
+  "description": "Gerenciador completo de produção, clientes e pesquisa inteligente de preços de filamento de 1kg no mercado brasileiro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
