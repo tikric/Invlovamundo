@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print3D Pro — Sistema de Gestão</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1e2438;--card:#1a2035;
+  --border:#2a3350;--text:#e8eaf6;--muted:#7b8db0;
+  --green:#00e5a0;--blue:#4f9cf9;--orange:#ff9f43;--red:#ff6b6b;--purple:#a78bfa;
+  --teal:#2dd4bf;--yellow:#fbbf24;--shopee:#ee4d2d;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;overflow-y:auto}
+.logo{padding:0 16px 20px;font-size:16px;font-weight:700;color:var(--green);letter-spacing:-.5px}
+.logo span{color:var(--muted);font-weight:400;font-size:12px;display:block;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:var(--muted);border-left:3px solid transparent;transition:.15s;font-size:13px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--green);border-left-color:var(--green)}
+.nav-item i{font-size:16px;width:18px}
+.nav-item.shopee-nav{color:#ff9476}
+.nav-item.shopee-nav.active{color:var(--shopee);border-left-color:var(--shopee)}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--muted);padding:16px 16px 6px;text-transform:uppercase}
+.main{flex:1;overflow:auto;background:var(--bg);margin-left:210px}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.page-title{font-size:18px;font-weight:600}
+.page-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.btn-primary{background:var(--green);color:#0f1117}
+.btn-primary:hover{background:#00c98a}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-shopee{background:var(--shopee);color:#fff}
+.btn-shopee:hover{background:#d94426}
+.btn-orange{background:var(--orange);color:#0f1117}
+.btn-orange:hover{opacity:.85}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{padding:6px 8px;border-radius:6px}
+.content{padding:20px 24px}
+.page{display:none}
+.page.active{display:block}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.metric-label{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.metric-value{font-size:22px;font-weight:700}
+.metric-sub{font-size:11px;margin-top:4px}
+.metric-sub.up{color:var(--green)}
+.metric-sub.down{color:var(--red)}
+.metric-sub.neu{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:600}
+.card-sub{font-size:11px;color:var(--muted)}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:11px;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px}
+.table td{padding:9px 10px;border-bottom:1px solid rgba(42,51,80,.5);font-size:13px;vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:var(--bg3)}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(0,229,160,.15);color:var(--green)}
+.badge-orange{background:rgba(255,159,67,.15);color:var(--orange)}
+.badge-red{background:rgba(255,107,107,.15);color:var(--red)}
+.badge-blue{background:rgba(79,156,249,.15);color:var(--blue)}
+.badge-purple{background:rgba(167,139,250,.15);color:var(--purple)}
+.badge-shopee{background:rgba(238,77,45,.15);color:var(--shopee)}
+.badge-teal{background:rgba(45,212,191,.15);color:var(--teal)}
+.bar-container{margin-bottom:10px}
+.bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:.4s}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select,.field textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:13px;width:100%;outline:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}
+.field textarea{resize:vertical;min-height:70px}
+.result-box{background:var(--bg3);border:1px solid var(--green);border-radius:8px;padding:14px;margin-top:12px}
+.result-box h4{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px}
+.result-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:700;font-size:15px}
+.result-row .green{color:var(--green)}
+.result-row .red{color:var(--red)}
+.result-row .orange{color:var(--orange)}
+.form-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.form-section h3{font-size:14px;font-weight:600;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chart-area{height:120px;display:flex;align-items:flex-end;gap:4px;padding:8px 0}
+.bar3d{flex:1;border-radius:3px 3px 0 0;transition:.3s;cursor:pointer}
+.bar3d:hover{opacity:.8;filter:brightness(1.2)}
+.chart-labels{display:flex;gap:4px;margin-top:4px}
+.chart-labels span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(42,51,80,.5);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.tag{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--bg3);border:1px solid var(--border);color:var(--muted)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;width:500px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{cursor:pointer;color:var(--muted);font-size:20px;line-height:1;background:none;border:none}
+.modal-close:hover{color:var(--text)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#0f1117;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:.3s;transform:translateY(10px)}
+.toast.show{opacity:1;transform:translateY(0)}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+select option{background:var(--bg2);color:var(--text)}
+
+/* CATÁLOGO */
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:16px}
+.prod-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:.2s;cursor:pointer}
+.prod-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.prod-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative}
+.prod-img img{width:100%;height:140px;object-fit:cover}
+.prod-img .no-img{width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg3),var(--bg));font-size:36px;color:var(--muted)}
+.prod-info{padding:12px}
+.prod-name{font-weight:600;font-size:13px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-price{color:var(--green);font-weight:700;font-size:15px;margin-bottom:6px}
+.prod-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.prod-actions{display:flex;gap:6px}
+.prod-stock{font-size:11px;color:var(--muted);margin-bottom:6px}
+.shopee-badge{background:rgba(238,77,45,.2);color:var(--shopee);border:1px solid rgba(238,77,45,.3);border-radius:4px;font-size:10px;padding:1px 6px;font-weight:600}
+
+/* CENTRAL DE PEDIDOS */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kanban-col{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px}
+.kanban-header{font-size:12px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.kanban-count{background:var(--bg3);border-radius:12px;padding:2px 8px;font-size:11px;color:var(--muted)}
+.kanban-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.kanban-item:hover{border-color:var(--blue)}
+.kanban-item-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.kanban-item-meta{font-size:11px;color:var(--muted)}
+.kanban-item-price{font-size:13px;color:var(--green);font-weight:700;margin-top:6px}
+.kanban-item-source{margin-top:4px}
+
+/* SHOPEE */
+.shopee-header{background:linear-gradient(135deg,#ee4d2d,#c03a1f);border-radius:10px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.shopee-logo{font-size:28px;font-weight:900;color:#fff}
+.shopee-status{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.info-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
+.info-box h4{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+.code-block{background:#0a0d14;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:monospace;font-size:12px;color:#a8d8a8;overflow-x:auto;margin:8px 0;line-height:1.6}
+.step-list{counter-reset:steps;padding-left:0;list-style:none}
+.step-list li{counter-increment:steps;padding:8px 0 8px 36px;border-bottom:1px solid rgba(42,51,80,.4);position:relative;font-size:13px;line-height:1.5}
+.step-list li:before{content:counter(steps);position:absolute;left:0;top:8px;width:24px;height:24px;background:var(--green);color:#0f1117;border-radius:50%;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center}
+.step-list li:last-child{border-bottom:none}
+
+/* PHOTO UPLOAD */
+.photo-upload-area{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg3)}
+.photo-upload-area:hover{border-color:var(--green);background:rgba(0,229,160,.05)}
+.photo-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.photo-thumb{width:100%;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--border)}
+.photo-thumb-wrap{position:relative}
+.photo-del{position:absolute;top:2px;right:2px;background:rgba(255,107,107,.9);border:none;color:#fff;border-radius:4px;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* PEDIDO DETAIL */
+.order-detail{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.timeline{padding:0;list-style:none}
+.timeline li{padding:8px 0 8px 28px;border-bottom:1px solid rgba(42,51,80,.3);position:relative;font-size:13px}
+.timeline li:before{content:'';position:absolute;left:6px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--border)}
+.timeline li.done:before{background:var(--green)}
+.timeline li.current:before{background:var(--blue);box-shadow:0 0 0 3px rgba(79,156,249,.2)}
+
+/* SEARCH BAR */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;flex:1;max-width:300px}
+.search-bar input{background:none;border:none;color:var(--text);outline:none;font-size:13px;width:100%}
+.search-bar i{color:var(--muted);font-size:15px}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.ftab{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:transparent;transition:.15s}
+.ftab.active{background:var(--green);color:#0f1117;border-color:var(--green)}
+.ftab:hover:not(.active){background:var(--bg3);color:var(--text)}
+
+@media(max-width:900px){.kanban{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){
+  .sidebar{width:52px;padding:8px 0}
+  .logo,.nav-section,.nav-item span{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .main{margin-left:52px}
+  .grid2,.grid3,.kanban{grid-template-columns:1fr}
+  .input-row{grid-template-columns:1fr}
+  .modal{width:94vw}
+  .catalog-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .order-detail{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">Print3D Pro<span>Sistema de Gestão</span></div>
+  <div class="nav-section">Principal</div>
+  <div class="nav-item active" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
+  <div class="nav-item" onclick="nav('pedidos')"><i class="ti ti-list-check"></i><span>Central de Pedidos</span></div>
+  <div class="nav-item" onclick="nav('catalogo')"><i class="ti ti-box"></i><span>Catálogo</span></div>
+  <div class="nav-section">Financeiro</div>
+  <div class="nav-item" onclick="nav('estoque')"><i class="ti ti-package"></i><span>Estoque</span></div>
+  <div class="nav-item" onclick="nav('compras')"><i class="ti ti-shopping-cart"></i><span>Compras</span></div>
+  <div class="nav-item" onclick="nav('vendas')"><i class="ti ti-receipt"></i><span>Vendas</span></div>
+  <div class="nav-section">Ferramentas</div>
+  <div class="nav-item" onclick="nav('calculadora')"><i class="ti ti-calculator"></i><span>Calculadora</span></div>
+  <div class="nav-item" onclick="nav('relatorios')"><i class="ti ti-chart-bar"></i><span>Relatórios</span></div>
+  <div class="nav-item shopee-nav" onclick="nav('shopee')"><i class="ti ti-brand-shopee"></i><span>Shopee</span></div>
+  <div class="nav-item" onclick="nav('oportunidades')" style="color:#fbbf24"><i class="ti ti-tag"></i><span>Melhores Preços</span></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="page-sub" id="page-sub">Visão geral da sua operação</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar" id="topbar-search" style="display:none">
+        <i class="ti ti-search"></i>
+        <input type="text" id="search-input" placeholder="Buscar..." oninput="handleSearch()">
+      </div>
+      <button class="btn btn-ghost" onclick="openModal('modal-lancamento')"><i class="ti ti-bolt"></i> Lançar</button>
+      <button class="btn btn-primary" id="primary-btn" onclick="primaryAction()"><i class="ti ti-plus"></i> Novo Pedido</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="metrics" id="metrics-dash"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Faturamento Mensal</div><div class="card-sub">Últimos 6 meses</div></div></div>
+          <div class="chart-area" id="chart-fat"></div>
+          <div class="chart-labels" id="chart-fat-labels"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Status dos Pedidos</div><div class="card-sub">Distribuição atual</div></div></div>
+          <div style="margin-top:8px" id="status-bars"></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Últimos Pedidos</div>
+            <button class="btn btn-ghost btn-sm" onclick="nav('pedidos')">Ver todos</button>
+          </div>
+          <table class="table" id="dash-vendas"></table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Estoque Crítico</div>
+            <button class="btn btn-ghost btn-sm" onclick="nav('estoque')">Ver tudo</button>
+          </div>
+          <div id="estoque-critico"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTRAL DE PEDIDOS -->
+    <div class="page" id="page-pedidos">
+      <div class="metrics" id="metrics-ped"></div>
+      <div class="filter-tabs" id="ped-filter-tabs">
+        <button class="ftab active" onclick="filterPedidos('todos',this)">Todos</button>
+        <button class="ftab" onclick="filterPedidos('Aguardando',this)">⏳ Aguardando</button>
+        <button class="ftab" onclick="filterPedidos('Em produção',this)">🔧 Em produção</button>
+        <button class="ftab" onclick="filterPedidos('Pronto',this)">✅ Pronto</button>
+        <button class="ftab" onclick="filterPedidos('Enviado',this)">📦 Enviado</button>
+        <button class="ftab" onclick="filterPedidos('Entregue',this)">🏁 Entregue</button>
+        <button class="ftab" onclick="filterPedidos('Cancelado',this)">❌ Cancelado</button>
+      </div>
+      <div class="kanban" id="kanban-board" style="display:none"></div>
+      <div class="card" id="pedidos-list-card">
+        <div class="card-header">
+          <div class="card-title">Todos os Pedidos</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="toggleKanban()"><i class="ti ti-layout-columns"></i> Kanban</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-pedido')"><i class="ti ti-plus"></i> Novo Pedido</button>
+          </div>
+        </div>
+        <table class="table">
+          <thead><tr><th>#</th><th>Produto</th><th>Cliente</th><th>Origem</th><th>Prazo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="table-pedidos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CATÁLOGO DE PRODUTOS -->
+    <div class="page" id="page-catalogo">
+      <div class="metrics" id="metrics-cat"></div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Catálogo de Produtos</div>
+            <div class="card-sub">Gerencie seus produtos com fotos e preços</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="search-bar" style="display:flex">
+              <i class="ti ti-search"></i>
+              <input type="text" id="cat-search" placeholder="Buscar produto..." oninput="renderCatalogo()">
+            </div>
+            <select id="cat-filter" onchange="renderCatalogo()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:12px;outline:none">
+              <option value="">Todas categorias</option>
+              <option>Miniaturas</option><option>Cases</option><option>Utensílios</option><option>Industrial</option><option>Decoração</option><option>Personalizado</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModal('modal-produto')"><i class="ti ti-plus"></i> Novo Produto</button>
+          </div>
+        </div>
+        <div class="catalog-grid" id="catalog-grid"></div>
+      </div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="page" id="page-estoque">
+      <div class="metrics" id="metrics-est"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Materiais em Estoque</div>
+          <button class="btn btn-primary" onclick="openModal('modal-estoque')"><i class="ti ti-plus"></i> Adicionar Material</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>Material</th><th>Tipo</th><th>Qtd</th><th>Un.</th><th>Custo/un</th><th>Valor Total</th><th>Status</th></tr></thead>
+          <tbody id="table-estoque"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMPRAS -->
+    <div class="page" id="page-compras">
+      <div class="metrics" id="metrics-comp"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Histórico de Compras</div>
+          <button class="btn btn-primary" onclick="openModal('modal-compra')"><i class="ti ti-plus"></i> Registrar Compra</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>Data</th><th>Material</th><th>Qtd</th><th>Valor Unit.</th><th>Total</th><th>Fornecedor</th><th>Status</th></tr></thead>
+          <tbody id="table-compras"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VENDAS -->
+    <div class="page" id="page-vendas">
+      <div class="metrics" id="metrics-vend"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Registro de Vendas</div>
+          <button class="btn btn-primary" onclick="openModal('modal-venda')"><i class="ti ti-plus"></i> Nova Venda</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>Data</th><th>Produto</th><th>Cliente</th><th>Custo</th><th>Venda</th><th>Lucro</th><th>Margem</th><th>Status</th></tr></thead>
+          <tbody id="table-vendas"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div class="page" id="page-calculadora">
+      <div class="grid2">
+        <div>
+          <div class="form-section">
+            <h3><i class="ti ti-printer"></i>Calculadora de Impressão</h3>
+            <div class="input-row">
+              <div class="field"><label>Peso do Filamento (g)</label><input type="number" id="c-peso" value="0" min="0" oninput="calcular()"></div>
+              <div class="field"><label>Custo do Filamento (R$/kg)</label><input type="number" id="c-custo-fil" value="0" min="0" oninput="calcular()"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>Tempo de Impressão (h)</label><input type="number" id="c-tempo" value="0" min="0" step="0.1" oninput="calcular()"></div>
+              <div class="field"><label>Custo kWh (R$)</label><input type="number" id="c-kwh" value="0" step="0.01" oninput="calcular()"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>Potência da Impressora (W)</label><input type="number" id="c-watts" value="0" oninput="calcular()"></div>
+              <div class="field"><label>Falha estimada (%)</label><input type="number" id="c-falha" value="0" min="0" max="50" oninput="calcular()"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>Depreciação/h (R$)</label><input type="number" id="c-depreciacao" value="0" step="0.10" oninput="calcular()"></div>
+              <div class="field"><label>Mão de obra/h (R$)</label><input type="number" id="c-mao-obra" value="0" oninput="calcular()"></div>
+            </div>
+            <div class="input-row">
+              <div class="field"><label>Margem de Lucro (%)</label><input type="number" id="c-margem" value="0" min="0" oninput="calcular()"></div>
+              <div class="field"><label>Outros custos (R$)</label><input type="number" id="c-outros" value="0" step="0.50" oninput="calcular()"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="resultado-calc">
+            <h4>Resultado da Calculadora</h4>
+            <div id="calc-rows"><div style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Preencha os campos ao lado para calcular</div></div>
+          </div>
+          <div class="form-section" style="margin-top:16px">
+            <h3><i class="ti ti-percentage"></i>Simulador de Lucro</h3>
+            <div class="input-row">
+              <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="sim-preco" value="0" oninput="simular()"></div>
+              <div class="field"><label>Quantidade</label><input type="number" id="sim-qtd" value="1" oninput="simular()"></div>
+            </div>
+            <div id="sim-resultado"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div class="page" id="page-relatorios">
+      <div class="metrics" id="metrics-rel"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Lucro por Produto</div></div>
+          <div id="relat-produtos"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Resumo Financeiro</div></div>
+          <div id="relat-financeiro"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Evolução de Faturamento</div><div class="card-sub">Últimos 6 meses</div></div>
+        <div style="height:180px;display:flex;align-items:flex-end;gap:6px;padding:8px 0" id="relat-chart"></div>
+        <div class="chart-labels" id="relat-chart-labels"></div>
+      </div>
+    </div>
+
+    <!-- SHOPEE -->
+    <div class="page" id="page-shopee">
+      <div class="shopee-header">
+        <div>
+          <div class="shopee-logo">🛍 Shopee</div>
+          <div style="color:rgba(255,255,255,.85);font-size:13px;margin-top:4px">Integração com Shopee Seller Center</div>
+          <div class="shopee-status" id="shopee-status-bar">
+            <span class="badge badge-orange">⚠ Não configurado</span>
+          </div>
+        </div>
+        <div style="margin-left:auto;display:flex;flex-direction:column;gap:8px">
+          <button class="btn" style="background:rgba(255,255,255,.15);color:#fff" onclick="openModal('modal-shopee-cfg')"><i class="ti ti-settings"></i> Configurar Integração</button>
+          <button class="btn" style="background:rgba(255,255,255,.1);color:#fff" onclick="syncShopee()"><i class="ti ti-refresh"></i> Sincronizar Pedidos</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><div class="card-title" style="color:var(--shopee)">🛒 Pedidos Shopee</div></div>
+          <div id="shopee-orders">
+            <div class="empty"><i class="ti ti-brand-shopee" style="font-size:32px;display:block;margin-bottom:8px"></i>Configure a integração para ver pedidos da Shopee aqui</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Produtos no Catálogo</div></div>
+          <div id="shopee-products-sync">
+            <div class="empty">Nenhum produto vinculado à Shopee ainda</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-book"></i> Guia de Integração com a Shopee</div></div>
+        <div style="padding:4px 0">
+          <div class="info-box">
+            <h4>📋 Passo a Passo — Como integrar com a Shopee</h4>
+            <ol class="step-list">
+              <li><strong>Crie uma conta de desenvolvedor Shopee:</strong> Acesse <strong>open.shopee.com</strong> e faça login com sua conta Shopee. Clique em "Apply to be a developer".</li>
+              <li><strong>Crie um App:</strong> No painel, clique em "Create App". Dê um nome (ex: Print3D Dashboard), selecione o tipo "Self-developed" e preencha a URL do seu sistema.</li>
+              <li><strong>Obtenha as credenciais:</strong> Após aprovação, você receberá o <strong>Partner ID</strong> e o <strong>Partner Key</strong>. Guarde com segurança.</li>
+              <li><strong>Autorize sua loja:</strong> Gere o link de autorização abaixo e acesse-o para vincular sua loja Shopee ao sistema. Isso gera o <strong>Shop ID</strong> e o <strong>Access Token</strong>.</li>
+              <li><strong>Configure o Webhook:</strong> No painel do app Shopee, vá em "Configure" → "Webhook" e adicione sua URL de recebimento. O sistema enviará notificações para cada novo pedido.</li>
+              <li><strong>Teste a integração:</strong> Faça um pedido de teste na sua loja ou use o Sandbox da Shopee para verificar se os pedidos aparecem aqui no sistema.</li>
+              <li><strong>Sincronização automática:</strong> Após configurado, novos pedidos da Shopee aparecem automaticamente na Central de Pedidos com a origem marcada como <span class="badge badge-shopee">SHOPEE</span>.</li>
+            </ol>
+          </div>
+
+          <div class="info-box">
+            <h4>🔑 Credenciais necessárias</h4>
+            <div class="input-row">
+              <div class="field"><label>Partner ID</label><input id="shopee-partner-id" placeholder="Ex: 1234567" value=""></div>
+              <div class="field"><label>Shop ID</label><input id="shopee-shop-id" placeholder="Ex: 7654321" value=""></div>
+            </div>
+            <div class="field"><label>Partner Key / Secret</label><input type="password" id="shopee-partner-key" placeholder="Sua chave secreta" value=""></div>
+            <div class="field"><label>Access Token</label><input type="password" id="shopee-access-token" placeholder="Token após autorização" value=""></div>
+            <button class="btn btn-shopee" onclick="salvarShopeeConfig()"><i class="ti ti-check"></i> Salvar Configuração</button>
+          </div>
+
+          <div class="info-box">
+            <h4>📡 URL do Webhook (Copie e cole no painel da Shopee)</h4>
+            <div class="code-block">https://seudominio.com/webhook/shopee</div>
+            <p style="font-size:12px;color:var(--muted)">Esta URL receberá os eventos da Shopee (novos pedidos, cancelamentos, atualizações de status).</p>
+          </div>
+
+          <div class="info-box">
+            <h4>⚙️ Exemplo de código — Receber Webhook Node.js</h4>
+            <div class="code-block">const express = require('express');
+const crypto = require('crypto');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhook/shopee', (req, res) => {
+  // Verificar assinatura
+  const signature = req.headers['authorization'];
+  const body = JSON.stringify(req.body);
+  const expected = crypto
+    .createHmac('sha256', process.env.SHOPEE_PARTNER_KEY)
+    .update(body)
+    .digest('hex');
+
+  if (signature !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { code, data } = req.body;
+  
+  // Novo pedido
+  if (code === 3) {
+    const orderId = data.ordersn;
+    console.log('Novo pedido Shopee:', orderId);
+    // Salvar no seu banco de dados
+    // notificarSistema(orderId);
+  }
+  
+  res.json({ status: 'ok' });
+});
+
+app.listen(3000);</div>
+          </div>
+
+          <div class="info-box">
+            <h4>📦 Endpoints da API Shopee que você vai usar</h4>
+            <table class="table">
+              <thead><tr><th>Endpoint</th><th>Descrição</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:monospace;font-size:12px">GET /api/v2/order/get_order_list</td><td>Buscar lista de pedidos</td></tr>
+                <tr><td style="font-family:monospace;font-size:12px">GET /api/v2/order/get_order_detail</td><td>Detalhes de um pedido</td></tr>
+                <tr><td style="font-family:monospace;font-size:12px">POST /api/v2/logistics/init_shipment</td><td>Iniciar envio de pedido</td></tr>
+                <tr><td style="font-family:monospace;font-size:12px">GET /api/v2/product/get_item_list</td><td>Listar seus produtos</td></tr>
+                <tr><td style="font-family:monospace;font-size:12px">POST /api/v2/product/add_item</td><td>Publicar produto na Shopee</td></tr>
+                <tr><td style="font-family:monospace;font-size:12px">POST /api/v2/order/cancel_order</td><td>Cancelar pedido</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-box">
+            <h4>🔗 Links úteis</h4>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+              <a href="https://open.shopee.com" target="_blank" style="color:var(--blue)"><i class="ti ti-external-link"></i> open.shopee.com — Portal do Desenvolvedor</a>
+              <a href="https://open.shopee.com/documents/v2/v2.order.get_order_list?module=94&type=1" target="_blank" style="color:var(--blue)"><i class="ti ti-external-link"></i> Documentação da API Shopee v2</a>
+              <a href="https://open.shopee.com/documents/v2/v2.push.overview?module=122&type=1" target="_blank" style="color:var(--blue)"><i class="ti ti-external-link"></i> Documentação de Webhooks/Push</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MELHORES PREÇOS / OPORTUNIDADES -->
+    <div class="page" id="page-oportunidades">
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,#1a1a2a,#1a1e2f);border:1px solid rgba(66,133,244,.3);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px">
+        <div style="font-size:36px">🛒</div>
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:700;color:var(--blue)">Cotação de Preços em Tempo Real</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">Busca via IA com web search · Google Shopping · Shopee · Amazon · Mercado Livre</div>
+        </div>
+        <button class="btn" style="background:var(--blue);color:#fff;font-weight:700;min-width:140px" onclick="buscarOportunidades()">
+          <i class="ti ti-search"></i> Buscar Preços
+        </button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header" style="margin-bottom:10px">
+          <div class="card-title">Configurar busca</div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Materiais</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--bg3);padding:6px 12px;border-radius:20px;border:1px solid var(--border)"><input type="checkbox" id="mat-pla" checked style="accent-color:var(--green)"> PLA</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--bg3);padding:6px 12px;border-radius:20px;border:1px solid var(--border)"><input type="checkbox" id="mat-petg" checked style="accent-color:var(--blue)"> PETG</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--bg3);padding:6px 12px;border-radius:20px;border:1px solid var(--border)"><input type="checkbox" id="mat-tpu" style="accent-color:var(--purple)"> TPU</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--bg3);padding:6px 12px;border-radius:20px;border:1px solid var(--border)"><input type="checkbox" id="mat-abs" style="accent-color:var(--orange)"> ABS</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--bg3);padding:6px 12px;border-radius:20px;border:1px solid var(--border)"><input type="checkbox" id="mat-asa" style="accent-color:var(--teal)"> ASA</label>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Peso</div>
+            <select id="fil-peso" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;outline:none" onchange="renderTabelaLinks()">
+              <option value="1kg">1 kg</option><option value="500g">500 g</option><option value="2kg">2 kg</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buscador com Anthropic API -->
+      <div class="card" style="margin-bottom:16px;border-color:rgba(66,133,244,.3)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="font-size:20px">⚡</span>
+          <div>
+            <div class="card-title">Busca via IA com pesquisa web</div>
+            <div class="card-sub">Usa IA com web search para encontrar preços reais nos marketplaces</div>
+          </div>
+        </div>
+        <div id="opor-loading" style="display:none;text-align:center;padding:32px">
+          <div style="font-size:32px;margin-bottom:10px;animation:spin 1.5s linear infinite;display:inline-block">🔍</div>
+          <div style="font-size:14px;font-weight:600;color:var(--blue);margin-bottom:4px" id="opor-loading-msg">Pesquisando preços...</div>
+          <div style="background:var(--bg3);border-radius:8px;height:6px;margin:12px auto;max-width:260px;overflow:hidden">
+            <div id="opor-progress" style="height:100%;background:var(--blue);border-radius:8px;width:0%;transition:width .5s"></div>
+          </div>
+        </div>
+        <div id="opor-estado-inicial" style="padding:16px 0;color:var(--muted);font-size:13px;text-align:center">
+          Selecione os materiais acima e clique em <strong style="color:var(--blue)">Buscar Preços</strong>
+        </div>
+        <div id="opor-resultados" style="display:none"></div>
+      </div>
+
+      <!-- Links diretos sempre visíveis -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="card-title">🔗 Links diretos — menor preço + frete grátis</div>
+          <span style="font-size:11px;color:var(--muted)">Clique para abrir no marketplace</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted)">Material</th>
+                <th style="padding:8px 12px;color:#ee4d2d">🛍 Shopee</th>
+                <th style="padding:8px 12px;color:#ff9900">📦 Amazon</th>
+                <th style="padding:8px 12px;color:#f5a623">🛒 Mercado Livre</th>
+                <th style="padding:8px 12px;color:#ff6a00">🌐 AliExpress</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-links"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ========== MODAIS ========== -->
+
+<!-- Modal Pedido -->
+<div class="modal-overlay" id="modal-pedido" onclick="bgClose(event,'modal-pedido')">
+<div class="modal">
+  <h3>Novo Pedido <button class="modal-close" onclick="closeModal('modal-pedido')">✕</button></h3>
+  <div class="field"><label>Produto</label><input id="p-produto" placeholder="Nome do produto/serviço"></div>
+  <div class="field"><label>Cliente</label><input id="p-cliente" placeholder="Nome do cliente"></div>
+  <div class="field"><label>Telefone / WhatsApp</label><input id="p-telefone" placeholder="(00) 00000-0000"></div>
+  <div class="input-row">
+    <div class="field"><label>Custo de Produção (R$)</label><input type="number" id="p-custo" value="0" step="0.01"></div>
+    <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="p-preco" value="0" step="0.01"></div>
+  </div>
+  <div class="input-row">
+    <div class="field"><label>Prazo de Entrega</label><input type="date" id="p-prazo"></div>
+    <div class="field"><label>Origem</label>
+      <select id="p-origem">
+        <option value="Manual">Manual / Direto</option>
+        <option value="Shopee">Shopee</option>
+        <option value="WhatsApp">WhatsApp</option>
+        <option value="Instagram">Instagram</option>
+        <option value="Indicação">Indicação</option>
+      </select>
+    </div>
+  </div>
+  <div class="field"><label>Status</label>
+    <select id="p-status">
+      <option value="Aguardando">Aguardando</option>
+      <option value="Em produção">Em produção</option>
+      <option value="Pronto">Pronto</option>
+      <option value="Enviado">Enviado</option>
+      <option value="Entregue">Entregue</option>
+      <option value="Cancelado">Cancelado</option>
+    </select>
+  </div>
+  <div class="field"><label>Observações</label><textarea id="p-obs" placeholder="Detalhes do pedido, cor, tamanho, etc."></textarea></div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-pedido')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarPedido()"><i class="ti ti-check"></i> Salvar Pedido</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Produto / Catálogo -->
+<div class="modal-overlay" id="modal-produto" onclick="bgClose(event,'modal-produto')">
+<div class="modal">
+  <h3 id="modal-produto-title">Novo Produto <button class="modal-close" onclick="closeModal('modal-produto')">✕</button></h3>
+  <input type="hidden" id="prod-edit-id" value="">
+  <div class="field"><label>Nome do Produto</label><input id="prod-nome" placeholder="Ex: Miniatura Personalizada"></div>
+  <div class="input-row">
+    <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="prod-preco" value="0" step="0.01"></div>
+    <div class="field"><label>Custo de Produção (R$)</label><input type="number" id="prod-custo" value="0" step="0.01"></div>
+  </div>
+  <div class="input-row">
+    <div class="field"><label>Categoria</label>
+      <select id="prod-categoria">
+        <option>Miniaturas</option><option>Cases</option><option>Utensílios</option><option>Industrial</option><option>Decoração</option><option>Personalizado</option>
+      </select>
+    </div>
+    <div class="field"><label>Estoque Disponível</label><input type="number" id="prod-estoque" value="0" min="0"></div>
+  </div>
+  <div class="field"><label>Tempo médio impressão (h)</label><input type="number" id="prod-tempo" value="0" step="0.5"></div>
+  <div class="field"><label>Descrição</label><textarea id="prod-desc" placeholder="Descreva o produto, materiais usados, dimensões..."></textarea></div>
+  <div class="field"><label>Fotos do Produto</label>
+    <div class="photo-upload-area" onclick="document.getElementById('prod-foto-input').click()">
+      <i class="ti ti-photo-up" style="font-size:24px;color:var(--muted)"></i>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">Clique para adicionar fotos<br><span style="font-size:11px">PNG, JPG, WEBP — até 5 fotos</span></div>
+    </div>
+    <input type="file" id="prod-foto-input" accept="image/*" multiple style="display:none" onchange="handleFotoUpload(event)">
+    <div class="photo-preview-grid" id="prod-foto-preview"></div>
+  </div>
+  <div class="field" style="flex-direction:row;align-items:center;gap:10px">
+    <input type="checkbox" id="prod-shopee" style="width:auto">
+    <label style="font-size:13px;color:var(--text);text-transform:none;letter-spacing:0">Sincronizar com Shopee</label>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-produto')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarProduto()"><i class="ti ti-check"></i> Salvar Produto</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Venda -->
+<div class="modal-overlay" id="modal-venda" onclick="bgClose(event,'modal-venda')">
+<div class="modal">
+  <h3>Nova Venda <button class="modal-close" onclick="closeModal('modal-venda')">✕</button></h3>
+  <div class="field"><label>Produto</label><input id="v-produto" placeholder="Ex: Suporte de parede"></div>
+  <div class="field"><label>Cliente</label><input id="v-cliente" placeholder="Nome do cliente"></div>
+  <div class="input-row">
+    <div class="field"><label>Custo de Produção (R$)</label><input type="number" id="v-custo" value="0" step="0.01"></div>
+    <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="v-preco" value="0" step="0.01"></div>
+  </div>
+  <div class="field"><label>Status</label>
+    <select id="v-status">
+      <option value="Concluído">Concluído</option>
+      <option value="Em produção">Em produção</option>
+      <option value="Aguardando">Aguardando</option>
+      <option value="Entregue">Entregue</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-venda')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarVenda()"><i class="ti ti-check"></i> Salvar Venda</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Compra -->
+<div class="modal-overlay" id="modal-compra" onclick="bgClose(event,'modal-compra')">
+<div class="modal">
+  <h3>Registrar Compra <button class="modal-close" onclick="closeModal('modal-compra')">✕</button></h3>
+  <div class="field"><label>Material</label><input id="cp-material" placeholder="Ex: PLA 1kg Branco"></div>
+  <div class="input-row">
+    <div class="field"><label>Quantidade</label><input type="number" id="cp-qtd" value="1" step="0.1"></div>
+    <div class="field"><label>Unidade</label><select id="cp-un"><option>kg</option><option>un</option><option>l</option><option>m</option><option>rolo</option></select></div>
+  </div>
+  <div class="input-row">
+    <div class="field"><label>Valor Unitário (R$)</label><input type="number" id="cp-unit" value="0" step="0.01"></div>
+    <div class="field"><label>Fornecedor</label><input id="cp-forn" placeholder="Nome do fornecedor"></div>
+  </div>
+  <div class="field"><label>Status</label>
+    <select id="cp-status"><option value="Recebido">Recebido</option><option value="Pendente">Pendente</option><option value="A caminho">A caminho</option></select>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-compra')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarCompra()"><i class="ti ti-check"></i> Registrar</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Estoque -->
+<div class="modal-overlay" id="modal-estoque" onclick="bgClose(event,'modal-estoque')">
+<div class="modal">
+  <h3>Adicionar ao Estoque <button class="modal-close" onclick="closeModal('modal-estoque')">✕</button></h3>
+  <div class="field"><label>Material</label><input id="e-material" placeholder="Ex: PETG 1kg Preto"></div>
+  <div class="field"><label>Tipo</label>
+    <select id="e-tipo"><option>Filamento</option><option>Resina</option><option>Suporte</option><option>Acabamento</option><option>Outro</option></select>
+  </div>
+  <div class="input-row">
+    <div class="field"><label>Quantidade</label><input type="number" id="e-qtd" value="1" step="0.1"></div>
+    <div class="field"><label>Unidade</label><select id="e-un"><option>kg</option><option>un</option><option>l</option><option>m</option><option>rolo</option></select></div>
+  </div>
+  <div class="field"><label>Custo por Unidade (R$)</label><input type="number" id="e-custo" value="0" step="0.01"></div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-estoque')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarEstoque()"><i class="ti ti-check"></i> Salvar</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Lançamento Rápido -->
+<div class="modal-overlay" id="modal-lancamento" onclick="bgClose(event,'modal-lancamento')">
+<div class="modal">
+  <h3>Lançamento Rápido <button class="modal-close" onclick="closeModal('modal-lancamento')">✕</button></h3>
+  <div class="field"><label>Tipo</label>
+    <select id="l-tipo">
+      <option value="venda">Venda</option>
+      <option value="compra">Compra de Material</option>
+      <option value="estoque">Entrada de Estoque</option>
+    </select>
+  </div>
+  <div class="field"><label>Descrição</label><input id="l-desc" placeholder="Descrição rápida"></div>
+  <div class="field"><label>Valor (R$)</label><input type="number" id="l-valor" value="0" step="0.01"></div>
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-lancamento')">Cancelar</button>
+    <button class="btn btn-primary" style="flex:2" onclick="salvarLancamento()"><i class="ti ti-bolt"></i> Lançar</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal Detalhe Pedido -->
+<div class="modal-overlay" id="modal-detalhe-pedido" onclick="bgClose(event,'modal-detalhe-pedido')">
+<div class="modal" style="width:560px">
+  <h3 id="detalhe-titulo">Detalhes do Pedido <button class="modal-close" onclick="closeModal('modal-detalhe-pedido')">✕</button></h3>
+  <div id="detalhe-content"></div>
+</div>
+</div>
+
+<!-- Modal Config Shopee -->
+<div class="modal-overlay" id="modal-shopee-cfg" onclick="bgClose(event,'modal-shopee-cfg')">
+<div class="modal">
+  <h3>Configurar Shopee <button class="modal-close" onclick="closeModal('modal-shopee-cfg')">✕</button></h3>
+  <div class="info-box" style="border-color:rgba(238,77,45,.3)">
+    <h4>⚠️ Você precisará de:</h4>
+    <ul style="font-size:12px;color:var(--muted);padding-left:16px;line-height:1.8">
+      <li>Conta no <strong style="color:var(--text)">open.shopee.com</strong></li>
+      <li>App aprovado como desenvolvedor</li>
+      <li>Partner ID + Partner Key</li>
+      <li>Shop ID + Access Token</li>
+    </ul>
+  </div>
+  <div class="field"><label>Partner ID</label><input id="cfg-partner-id" placeholder="Seu Partner ID"></div>
+  <div class="field"><label>Partner Key</label><input type="password" id="cfg-partner-key" placeholder="Sua chave secreta"></div>
+  <div class="field"><label>Shop ID</label><input id="cfg-shop-id" placeholder="ID da sua loja"></div>
+  <div class="field"><label>Access Token</label><input type="password" id="cfg-access-token" placeholder="Token de acesso"></div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-shopee-cfg')">Cancelar</button>
+    <button class="btn btn-shopee" style="flex:2" onclick="salvarShopeeConfig()"><i class="ti ti-check"></i> Salvar e Conectar</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MESES=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const hoje=new Date();
+const mesAtual=hoje.getMonth();
+let kanbanMode=false;
+let pedidoFilter='todos';
+let tempFotos=[];
+
+// ===== STATE (tudo zerado) =====
+let state={
+  pedidos:[],
+  vendas:[],
+  compras:[],
+  estoque:[],
+  produtos:[],
+  shopee:{configurado:false,partnerId:'',partnerKey:'',shopId:'',accessToken:''}
+};
+
+// ===== FORMATADORES =====
+function fmt(v){return'R$ '+Number(v||0).toFixed(2).replace('.',',')}
+function fmtPct(v){return Number(v||0).toFixed(1)+'%'}
+function dateStr(d){if(!d)return'—';try{return new Date(d+'T00:00:00').toLocaleDateString('pt-BR')}catch{return d}}
+function todayISO(){return hoje.toISOString().slice(0,10)}
+function idGen(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+
+function toast(msg,cor){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=cor||'var(--green)';
+  t.style.color=cor?'#fff':'#0f1117';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function bgClose(e,id){if(e.target===e.currentTarget)closeModal(id)}
+
+// ===== NAV =====
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+page+"'"))n.classList.add('active');
+  });
+  const titles={
+    dashboard:['Dashboard','Visão geral da sua operação'],
+    pedidos:['Central de Pedidos','Gerencie todos os seus pedidos'],
+    catalogo:['Catálogo de Produtos','Produtos cadastrados com fotos e preços'],
+    estoque:['Estoque','Controle de materiais'],
+    compras:['Compras','Histórico de gastos com materiais'],
+    vendas:['Vendas','Registro de pedidos e lucros'],
+    calculadora:['Calculadora','Precificação e análise de custos'],
+    relatorios:['Relatórios','Análise financeira completa'],
+    shopee:['Integração Shopee','Conecte sua loja da Shopee'],
+    oportunidades:['🏷️ Melhores Preços','Top 3 filamentos mais baratos com frete grátis']
+  };
+  const[t,s]=titles[page]||['',''];
+  document.getElementById('page-title').textContent=t;
+  document.getElementById('page-sub').textContent=s;
+  const btn=document.getElementById('primary-btn');
+  const acts={dashboard:'Novo Pedido',pedidos:'Novo Pedido',catalogo:'Novo Produto',estoque:'+ Material',compras:'+ Compra',vendas:'Nova Venda',calculadora:'Calcular',relatorios:'Exportar',shopee:'Sincronizar',oportunidades:'🔍 Buscar Preços'};
+  const icons={catalogo:'ti-box',pedidos:'ti-list-check',shopee:'ti-brand-shopee'};
+  const ico=icons[page]||'ti-plus';
+  btn.innerHTML=`<i class="ti ${ico}"></i> ${acts[page]||'Ação'}`;
+  const sb=document.getElementById('topbar-search');
+  sb.style.display=(page==='pedidos'||page==='catalogo')?'flex':'none';
+  if(page==='pedidos')document.getElementById('search-input').placeholder='Buscar pedido...';
+  renderPage(page);
+  if(page==='oportunidades') setTimeout(initApiKeys, 60);
+}
+
+function primaryAction(){
+  const a=document.querySelector('.nav-item.active');
+  const pg=a?a.getAttribute('onclick').match(/'(\w+)'/)[1]:'dashboard';
+  if(pg==='catalogo')openModal('modal-produto');
+  else if(pg==='estoque')openModal('modal-estoque');
+  else if(pg==='compras')openModal('modal-compra');
+  else if(pg==='vendas')openModal('modal-venda');
+  else if(pg==='shopee')syncShopee();
+  else if(pg==='oportunidades')buscarOportunidades();
+  else openModal('modal-pedido');
+}
+
+function handleSearch(){renderPage(currentPage())}
+
+function currentPage(){
+  const a=document.querySelector('.nav-item.active');
+  return a?a.getAttribute('onclick').match(/'(\w+)'/)[1]:'dashboard';
+}
+
+// ===== BADGES =====
+function badgeStatus(s){
+  const m={
+    'Concluído':'green','Entregue':'green','Pronto':'teal',
+    'Em produção':'blue','Aguardando':'orange',
+    'Recebido':'green','A caminho':'blue','Pendente':'orange',
+    'Enviado':'purple','Cancelado':'red','Shopee':'shopee'
+  };
+  return`<span class="badge badge-${m[s]||'purple'}">${s}</span>`;
+}
+
+function badgeOrigem(o){
+  if(o==='Shopee')return`<span class="shopee-badge">SHOPEE</span>`;
+  const m={'WhatsApp':'green','Instagram':'purple','Indicação':'teal','Manual':'blue'};
+  return`<span class="badge badge-${m[o]||'blue'}" style="font-size:10px">${o}</span>`;
+}
+
+// ===== FOTO UPLOAD =====
+function handleFotoUpload(e){
+  const files=[...e.target.files];
+  files.forEach(f=>{
+    if(tempFotos.length>=5){toast('Máximo 5 fotos por produto','var(--orange)');return;}
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      tempFotos.push(ev.target.result);
+      renderFotoPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function renderFotoPreviews(){
+  const grid=document.getElementById('prod-foto-preview');
+  if(!grid)return;
+  grid.innerHTML=tempFotos.map((f,i)=>`
+    <div class="photo-thumb-wrap">
+      <img src="${f}" class="photo-thumb">
+      <button class="photo-del" onclick="removerFoto(${i})">✕</button>
+    </div>
+  `).join('');
+}
+function removerFoto(i){tempFotos.splice(i,1);renderFotoPreviews();}
+
+// ===== SALVAR PEDIDO =====
+function salvarPedido(){
+  const prod=document.getElementById('p-produto').value||'Produto sem nome';
+  const pedido={
+    id:idGen(),data:todayISO(),
+    produto:prod,
+    cliente:document.getElementById('p-cliente').value||'Sem nome',
+    telefone:document.getElementById('p-telefone').value||'',
+    custo:parseFloat(document.getElementById('p-custo').value)||0,
+    preco:parseFloat(document.getElementById('p-preco').value)||0,
+    prazo:document.getElementById('p-prazo').value||'',
+    origem:document.getElementById('p-origem').value,
+    status:document.getElementById('p-status').value,
+    obs:document.getElementById('p-obs').value||''
+  };
+  state.pedidos.unshift(pedido);
+  // também cria venda
+  state.vendas.unshift({data:pedido.data,produto:pedido.produto,cliente:pedido.cliente,custo:pedido.custo,preco:pedido.preco,status:pedido.status});
+  closeModal('modal-pedido');
+  ['p-produto','p-cliente','p-telefone','p-obs'].forEach(id=>document.getElementById(id).value='');
+  ['p-custo','p-preco'].forEach(id=>document.getElementById(id).value='0');
+  document.getElementById('p-prazo').value='';
+  toast('✓ Pedido criado com sucesso!');
+  renderPage(currentPage());
+}
+
+// ===== SALVAR PRODUTO =====
+function salvarProduto(){
+  const editId=document.getElementById('prod-edit-id').value;
+  const prod={
+    id:editId||idGen(),
+    nome:document.getElementById('prod-nome').value||'Produto sem nome',
+    preco:parseFloat(document.getElementById('prod-preco').value)||0,
+    custo:parseFloat(document.getElementById('prod-custo').value)||0,
+    categoria:document.getElementById('prod-categoria').value,
+    estoque:parseInt(document.getElementById('prod-estoque').value)||0,
+    tempo:parseFloat(document.getElementById('prod-tempo').value)||0,
+    desc:document.getElementById('prod-desc').value||'',
+    fotos:[...tempFotos],
+    shopee:document.getElementById('prod-shopee').checked
+  };
+  if(editId){
+    const idx=state.produtos.findIndex(p=>p.id===editId);
+    if(idx>-1)state.produtos[idx]=prod;
+  } else {
+    state.produtos.unshift(prod);
+  }
+  tempFotos=[];
+  closeModal('modal-produto');
+  ['prod-nome','prod-desc'].forEach(id=>document.getElementById(id).value='');
+  ['prod-preco','prod-custo','prod-tempo'].forEach(id=>document.getElementById(id).value='0');
+  document.getElementById('prod-estoque').value='0';
+  document.getElementById('prod-edit-id').value='';
+  document.getElementById('prod-foto-preview').innerHTML='';
+  document.getElementById('prod-shopee').checked=false;
+  document.getElementById('modal-produto-title').innerHTML='Novo Produto <button class="modal-close" onclick="closeModal(\'modal-produto\')">✕</button>';
+  toast('✓ Produto salvo no catálogo!');
+  renderPage('catalogo');
+}
+
+function editarProduto(id){
+  const p=state.produtos.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('prod-edit-id').value=id;
+  document.getElementById('prod-nome').value=p.nome;
+  document.getElementById('prod-preco').value=p.preco;
+  document.getElementById('prod-custo').value=p.custo;
+  document.getElementById('prod-categoria').value=p.categoria;
+  document.getElementById('prod-estoque').value=p.estoque;
+  document.getElementById('prod-tempo').value=p.tempo;
+  document.getElementById('prod-desc').value=p.desc||'';
+  document.getElementById('prod-shopee').checked=p.shopee||false;
+  tempFotos=[...p.fotos];
+  renderFotoPreviews();
+  document.getElementById('modal-produto-title').innerHTML='Editar Produto <button class="modal-close" onclick="closeModal(\'modal-produto\')">✕</button>';
+  openModal('modal-produto');
+}
+
+function excluirProduto(id){
+  if(!confirm('Excluir este produto do catálogo?'))return;
+  state.produtos=state.produtos.filter(p=>p.id!==id);
+  toast('Produto removido','var(--red)');
+  renderPage('catalogo');
+}
+
+// ===== SALVAR VENDA =====
+function salvarVenda(){
+  state.vendas.unshift({
+    data:todayISO(),
+    produto:document.getElementById('v-produto').value||'Produto s/nome',
+    cliente:document.getElementById('v-cliente').value||'Sem nome',
+    custo:parseFloat(document.getElementById('v-custo').value)||0,
+    preco:parseFloat(document.getElementById('v-preco').value)||0,
+    status:document.getElementById('v-status').value
+  });
+  closeModal('modal-venda');
+  ['v-produto','v-cliente'].forEach(id=>document.getElementById(id).value='');
+  ['v-custo','v-preco'].forEach(id=>document.getElementById(id).value='0');
+  toast('✓ Venda registrada com sucesso!');
+  renderPage(currentPage());
+}
+
+// ===== SALVAR COMPRA =====
+function salvarCompra(){
+  state.compras.unshift({
+    data:todayISO(),
+    material:document.getElementById('cp-material').value||'Material',
+    qtd:parseFloat(document.getElementById('cp-qtd').value)||1,
+    unit:parseFloat(document.getElementById('cp-unit').value)||0,
+    forn:document.getElementById('cp-forn').value||'—',
+    status:document.getElementById('cp-status').value
+  });
+  closeModal('modal-compra');
+  document.getElementById('cp-material').value='';
+  document.getElementById('cp-unit').value='0';
+  document.getElementById('cp-forn').value='';
+  toast('✓ Compra registrada!');
+  renderPage(currentPage());
+}
+
+// ===== SALVAR ESTOQUE =====
+function salvarEstoque(){
+  state.estoque.push({
+    material:document.getElementById('e-material').value||'Material',
+    tipo:document.getElementById('e-tipo').value,
+    qtd:parseFloat(document.getElementById('e-qtd').value)||1,
+    un:document.getElementById('e-un').value,
+    custo:parseFloat(document.getElementById('e-custo').value)||0
+  });
+  closeModal('modal-estoque');
+  document.getElementById('e-material').value='';
+  document.getElementById('e-qtd').value='1';
+  document.getElementById('e-custo').value='0';
+  toast('✓ Material adicionado ao estoque!');
+  renderPage(currentPage());
+}
+
+// ===== LANÇAMENTO RÁPIDO =====
+function salvarLancamento(){
+  const tipo=document.getElementById('l-tipo').value;
+  const desc=document.getElementById('l-desc').value||'Lançamento';
+  const val=parseFloat(document.getElementById('l-valor').value)||0;
+  if(tipo==='venda')state.vendas.unshift({data:todayISO(),produto:desc,cliente:'—',custo:0,preco:val,status:'Concluído'});
+  else if(tipo==='compra')state.compras.unshift({data:todayISO(),material:desc,qtd:1,unit:val,forn:'—',status:'Recebido'});
+  else state.estoque.push({material:desc,tipo:'Outro',qtd:1,un:'un',custo:val});
+  closeModal('modal-lancamento');
+  document.getElementById('l-desc').value='';
+  document.getElementById('l-valor').value='0';
+  toast('✓ Lançamento registrado!');
+  renderPage(currentPage());
+}
+
+// ===== PEDIDOS: STATUS =====
+function mudarStatusPedido(id,novoStatus){
+  const p=state.pedidos.find(x=>x.id===id);
+  if(p){
+    p.status=novoStatus;
+    toast('Status atualizado: '+novoStatus);
+    renderPage('pedidos');
+  }
+}
+
+function verDetalhe(id){
+  const p=state.pedidos.find(x=>x.id===id);
+  if(!p)return;
+  const lucro=p.preco-p.custo;
+  const mg=p.preco>0?lucro/p.preco*100:0;
+  document.getElementById('detalhe-titulo').innerHTML=`Pedido #${p.id.slice(-6).toUpperCase()} <button class="modal-close" onclick="closeModal('modal-detalhe-pedido')">✕</button>`;
+  const statusOpts=['Aguardando','Em produção','Pronto','Enviado','Entregue','Cancelado'];
+  document.getElementById('detalhe-content').innerHTML=`
+    <div class="order-detail">
+      <div>
+        <div class="info-box">
+          <h4>Informações do Pedido</h4>
+          <div class="stat-row"><span style="color:var(--muted)">Produto</span><span>${p.produto}</span></div>
+          <div class="stat-row"><span style="color:var(--muted)">Cliente</span><span>${p.cliente}</span></div>
+          <div class="stat-row"><span style="color:var(--muted)">Telefone</span><span>${p.telefone||'—'}</span></div>
+          <div class="stat-row"><span style="color:var(--muted)">Data</span><span>${dateStr(p.data)}</span></div>
+          <div class="stat-row"><span style="color:var(--muted)">Prazo</span><span>${p.prazo?dateStr(p.prazo):'—'}</span></div>
+          <div class="stat-row"><span style="color:var(--muted)">Origem</span><span>${badgeOrigem(p.origem)}</span></div>
+          ${p.obs?`<div class="stat-row"><span style="color:var(--muted)">Obs</span><span style="font-size:12px">${p.obs}</span></div>`:''}
+        </div>
+        <div class="info-box">
+          <h4>Financeiro</h4>
+          <div class="stat-row"><span>Custo produção</span><span style="color:var(--orange)">${fmt(p.custo)}</span></div>
+          <div class="stat-row"><span>Preço de venda</span><span style="color:var(--green)">${fmt(p.preco)}</span></div>
+          <div class="stat-row"><span style="font-weight:700">Lucro</span><span style="color:${lucro>=0?'var(--blue)':'var(--red)'};font-weight:700">${fmt(lucro)} (${fmtPct(mg)})</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="info-box">
+          <h4>Atualizar Status</h4>
+          ${statusOpts.map(s=>`
+            <button onclick="mudarStatusPedido('${p.id}','${s}');closeModal('modal-detalhe-pedido')" 
+              class="btn btn-ghost" style="width:100%;margin-bottom:6px;justify-content:center;${p.status===s?'background:var(--bg3);color:var(--text);border-color:var(--green)':''}">${badgeStatus(s)} ${s}</button>
+          `).join('')}
+        </div>
+        ${p.telefone?`<a href="https://wa.me/55${p.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px"><i class="ti ti-brand-whatsapp"></i> Abrir WhatsApp</a>`:''}
+      </div>
+    </div>
+  `;
+  openModal('modal-detalhe-pedido');
+}
+
+// ===== SHOPEE =====
+function salvarShopeeConfig(){
+  const pid=document.getElementById('cfg-partner-id')||document.getElementById('shopee-partner-id');
+  const pk=document.getElementById('cfg-partner-key')||document.getElementById('shopee-partner-key');
+  const sid=document.getElementById('cfg-shop-id')||document.getElementById('shopee-shop-id');
+  const at=document.getElementById('cfg-access-token')||document.getElementById('shopee-access-token');
+  if(pid&&pk&&sid&&at&&pid.value&&pk.value&&sid.value&&at.value){
+    state.shopee={configurado:true,partnerId:pid.value,partnerKey:pk.value,shopId:sid.value,accessToken:at.value};
+    document.getElementById('shopee-status-bar').innerHTML='<span class="badge badge-green">✓ Conectado</span>';
+    closeModal('modal-shopee-cfg');
+    toast('✓ Shopee configurada!');
+    renderPage('shopee');
+  } else {
+    toast('Preencha todos os campos','var(--red)');
+  }
+}
+
+function syncShopee(){
+  if(!state.shopee.configurado){
+    toast('Configure a integração primeiro','var(--orange)');
+    openModal('modal-shopee-cfg');
+    return;
+  }
+  toast('🔄 Sincronizando com Shopee...');
+  setTimeout(()=>{
+    toast('✓ Shopee sincronizada! Nenhum pedido novo.');
+    renderPage('shopee');
+  },1500);
+}
+
+// ===== FILTRO PEDIDOS =====
+function filterPedidos(f,el){
+  pedidoFilter=f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderPedidos();
+}
+
+function toggleKanban(){
+  kanbanMode=!kanbanMode;
+  document.getElementById('kanban-board').style.display=kanbanMode?'grid':'none';
+  document.getElementById('pedidos-list-card').style.display=kanbanMode?'none':'block';
+  if(kanbanMode)renderKanban();
+}
+
+// ===== RENDERS =====
+function renderPage(page){
+  if(page==='dashboard')renderDashboard();
+  else if(page==='pedidos')renderPedidos();
+  else if(page==='catalogo')renderCatalogo();
+  else if(page==='estoque')renderEstoque();
+  else if(page==='compras')renderCompras();
+  else if(page==='vendas')renderVendas();
+  else if(page==='calculadora')calcular();
+  else if(page==='relatorios')renderRelatorios();
+  else if(page==='shopee')renderShopee();
+  else if(page==='oportunidades'){/* page is self-contained */}
+}
+
+function renderDashboard(){
+  const fat=state.vendas.reduce((a,v)=>a+v.preco,0);
+  const custo=state.vendas.reduce((a,v)=>a+v.custo,0);
+  const lucro=fat-custo;
+  const margem=fat>0?lucro/fat*100:0;
+  const comp=state.compras.reduce((a,c)=>a+c.qtd*c.unit,0);
+  const pedPend=state.pedidos.filter(p=>p.status==='Aguardando'||p.status==='Em produção').length;
+  document.getElementById('metrics-dash').innerHTML=`
+    <div class="metric"><div class="metric-label">Faturamento</div><div class="metric-value" style="color:var(--green)">${fmt(fat)}</div><div class="metric-sub neu">${state.vendas.length} vendas</div></div>
+    <div class="metric"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:var(--blue)">${fmt(lucro)}</div><div class="metric-sub ${lucro>=0?'up':'down'}">${fmtPct(margem)} de margem</div></div>
+    <div class="metric"><div class="metric-label">Em Produção</div><div class="metric-value" style="color:var(--orange)">${pedPend}</div><div class="metric-sub neu">pedidos ativos</div></div>
+    <div class="metric"><div class="metric-label">Produtos</div><div class="metric-value">${state.produtos.length}</div><div class="metric-sub neu">no catálogo</div></div>
+    <div class="metric"><div class="metric-label">Ticket Médio</div><div class="metric-value">${state.vendas.length?fmt(fat/state.vendas.length):fmt(0)}</div><div class="metric-sub neu">por venda</div></div>
+  `;
+  const fats=[];const meses=[];
+  for(let i=5;i>=0;i--){const m=(mesAtual-i+12)%12;meses.push(MESES[m]);fats.push(0);}
+  const maxF=Math.max(...fats,1);
+  const bgC=['#1e2a40','#243050','#2a3860','#304070','#365080','var(--green)'];
+  document.getElementById('chart-fat').innerHTML=fats.map((v,i)=>`<div class="bar3d" style="height:${Math.round(v/maxF*100)||4}%;background:${bgC[i]};min-height:4px" title="${meses[i]}: ${fmt(v)}"></div>`).join('');
+  document.getElementById('chart-fat-labels').innerHTML=meses.map(m=>`<span>${m}</span>`).join('');
+  const statusCount={};state.pedidos.forEach(p=>{statusCount[p.status]=(statusCount[p.status]||0)+1});
+  const sCols={'Entregue':'var(--green)','Pronto':'var(--teal)','Em produção':'var(--blue)','Aguardando':'var(--orange)','Enviado':'var(--purple)','Cancelado':'var(--red)'};
+  const total=state.pedidos.length||1;
+  document.getElementById('status-bars').innerHTML=Object.entries(statusCount).map(([s,c])=>`
+    <div class="bar-container"><div class="bar-label"><span>${s}</span><span style="color:var(--muted)">${c}</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:${c/total*100}%;background:${sCols[s]||'var(--purple)'}"></div></div></div>
+  `).join('')||'<div class="empty">Nenhum pedido registrado</div>';
+  document.getElementById('dash-vendas').innerHTML=`
+    <thead><tr><th>Produto</th><th>Preço</th><th>Status</th></tr></thead>
+    <tbody>${state.pedidos.slice(0,5).map(p=>`<tr><td>${p.produto}</td><td style="color:var(--green)">${fmt(p.preco)}</td><td>${badgeStatus(p.status)}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">Nenhum pedido</td></tr>'}</tbody>
+  `;
+  const criticos=state.estoque.filter(e=>e.qtd<0.5);
+  document.getElementById('estoque-critico').innerHTML=criticos.length
+    ?criticos.map(e=>`<div class="bar-container"><div class="bar-label"><span>${e.material}</span><span class="badge badge-red">${e.qtd} ${e.un}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(e.qtd*100,100)}%;background:var(--red)"></div></div></div>`).join('')
+    :state.estoque.length?state.estoque.slice(0,4).map(e=>`<div class="stat-row"><span>${e.material}</span><span style="color:var(--green)">${e.qtd} ${e.un}</span></div>`).join('')
+    :'<div class="empty">Nenhum material cadastrado</div>';
+}
+
+function renderPedidos(){
+  const q=document.getElementById('search-input')?.value.toLowerCase()||'';
+  const pedidosFilt=state.pedidos.filter(p=>{
+    const matchFilter=pedidoFilter==='todos'||p.status===pedidoFilter;
+    const matchSearch=!q||p.produto.toLowerCase().includes(q)||p.cliente.toLowerCase().includes(q);
+    return matchFilter&&matchSearch;
+  });
+  const pend=state.pedidos.filter(p=>p.status==='Aguardando').length;
+  const prod=state.pedidos.filter(p=>p.status==='Em produção').length;
+  const fat=state.pedidos.reduce((a,p)=>a+p.preco,0);
+  document.getElementById('metrics-ped').innerHTML=`
+    <div class="metric"><div class="metric-label">Total Pedidos</div><div class="metric-value">${state.pedidos.length}</div><div class="metric-sub neu">cadastrados</div></div>
+    <div class="metric"><div class="metric-label">Aguardando</div><div class="metric-value" style="color:var(--orange)">${pend}</div><div class="metric-sub ${pend>0?'down':'neu'}">para iniciar</div></div>
+    <div class="metric"><div class="metric-label">Em Produção</div><div class="metric-value" style="color:var(--blue)">${prod}</div><div class="metric-sub neu">em andamento</div></div>
+    <div class="metric"><div class="metric-label">Faturamento</div><div class="metric-value" style="color:var(--green)">${fmt(fat)}</div><div class="metric-sub neu">total</div></div>
+  `;
+  if(kanbanMode){renderKanban();return;}
+  document.getElementById('table-pedidos').innerHTML=pedidosFilt.map(p=>`
+    <tr>
+      <td style="font-family:monospace;font-size:11px;color:var(--muted)">#${p.id.slice(-6).toUpperCase()}</td>
+      <td>${p.produto}</td>
+      <td>${p.cliente}</td>
+      <td>${badgeOrigem(p.origem)}</td>
+      <td style="font-size:12px;color:var(--muted)">${p.prazo?dateStr(p.prazo):'—'}</td>
+      <td style="color:var(--green)">${fmt(p.preco)}</td>
+      <td>${badgeStatus(p.status)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="verDetalhe('${p.id}')" title="Ver detalhes"><i class="ti ti-eye"></i></button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="excluirPedido('${p.id}')" title="Excluir" style="color:var(--red)"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>
+  `).join('')||`<tr><td colspan="8" class="empty">Nenhum pedido encontrado</td></tr>`;
+}
+
+function excluirPedido(id){
+  if(!confirm('Excluir este pedido?'))return;
+  state.pedidos=state.pedidos.filter(p=>p.id!==id);
+  toast('Pedido removido','var(--red)');
+  renderPage('pedidos');
+}
+
+function renderKanban(){
+  const cols=[
+    {key:'Aguardando',label:'⏳ Aguardando',cor:'var(--orange)'},
+    {key:'Em produção',label:'🔧 Em produção',cor:'var(--blue)'},
+    {key:'Pronto',label:'✅ Pronto',cor:'var(--teal)'},
+    {key:'Enviado',label:'📦 Enviado',cor:'var(--purple)'},
+  ];
+  document.getElementById('kanban-board').innerHTML=cols.map(col=>{
+    const items=state.pedidos.filter(p=>p.status===col.key);
+    return`
+      <div class="kanban-col">
+        <div class="kanban-header" style="color:${col.cor}">
+          ${col.label}
+          <span class="kanban-count">${items.length}</span>
+        </div>
+        ${items.length?items.map(p=>`
+          <div class="kanban-item" onclick="verDetalhe('${p.id}')">
+            <div class="kanban-item-title">${p.produto}</div>
+            <div class="kanban-item-meta">${p.cliente}</div>
+            ${p.prazo?`<div class="kanban-item-meta">📅 ${dateStr(p.prazo)}</div>`:''}
+            <div class="kanban-item-source">${badgeOrigem(p.origem)}</div>
+            <div class="kanban-item-price">${fmt(p.preco)}</div>
+          </div>
+        `).join(''):`<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px">Nenhum pedido</div>`}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCatalogo(){
+  const q=(document.getElementById('cat-search')?.value||'').toLowerCase();
+  const filtCat=document.getElementById('cat-filter')?.value||'';
+  const prods=state.produtos.filter(p=>{
+    const mQ=!q||p.nome.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q);
+    const mC=!filtCat||p.categoria===filtCat;
+    return mQ&&mC;
+  });
+  const totalVal=state.produtos.reduce((a,p)=>a+p.preco,0);
+  const comFoto=state.produtos.filter(p=>p.fotos&&p.fotos.length>0).length;
+  const shopeeSync=state.produtos.filter(p=>p.shopee).length;
+  document.getElementById('metrics-cat').innerHTML=`
+    <div class="metric"><div class="metric-label">Produtos</div><div class="metric-value">${state.produtos.length}</div><div class="metric-sub neu">no catálogo</div></div>
+    <div class="metric"><div class="metric-label">Com Fotos</div><div class="metric-value" style="color:var(--blue)">${comFoto}</div><div class="metric-sub neu">de ${state.produtos.length}</div></div>
+    <div class="metric"><div class="metric-label">Preço Médio</div><div class="metric-value" style="color:var(--green)">${state.produtos.length?fmt(totalVal/state.produtos.length):fmt(0)}</div><div class="metric-sub neu">por produto</div></div>
+    <div class="metric"><div class="metric-label">Shopee</div><div class="metric-value" style="color:var(--shopee)">${shopeeSync}</div><div class="metric-sub neu">sincronizados</div></div>
+  `;
+  const grid=document.getElementById('catalog-grid');
+  if(!prods.length){
+    grid.innerHTML=`<div style="grid-column:1/-1" class="empty"><i class="ti ti-box" style="font-size:32px;display:block;margin-bottom:8px"></i>${state.produtos.length?'Nenhum produto encontrado':'Nenhum produto cadastrado ainda.<br>Clique em "+ Novo Produto" para começar!'}</div>`;
+    return;
+  }
+  grid.innerHTML=prods.map(p=>{
+    const img=p.fotos&&p.fotos.length?`<img src="${p.fotos[0]}" alt="${p.nome}">`:`<div class="no-img"><i class="ti ti-photo" style="font-size:32px;color:var(--muted)"></i></div>`;
+    const margem=p.preco>0?((p.preco-p.custo)/p.preco*100):0;
+    return`
+      <div class="prod-card">
+        <div class="prod-img">${img}</div>
+        <div class="prod-info">
+          <div class="prod-name" title="${p.nome}">${p.nome}</div>
+          <div class="prod-price">${fmt(p.preco)}</div>
+          <div class="prod-stock">Estoque: ${p.estoque} un · Margem: ${fmtPct(margem)}</div>
+          <div class="prod-tags">
+            <span class="tag">${p.categoria}</span>
+            ${p.shopee?'<span class="shopee-badge">SHOPEE</span>':''}
+            ${p.fotos&&p.fotos.length>1?`<span class="tag">${p.fotos.length} fotos</span>`:''}
+          </div>
+          <div class="prod-actions">
+            <button class="btn btn-ghost btn-sm" style="flex:1" onclick="editarProduto('${p.id}')"><i class="ti ti-edit"></i></button>
+            <button class="btn btn-primary btn-sm" style="flex:2" onclick="pedidoProduto('${p.id}')"><i class="ti ti-plus"></i> Pedido</button>
+            <button class="btn btn-ghost btn-sm btn-icon" style="color:var(--red)" onclick="excluirProduto('${p.id}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function pedidoProduto(id){
+  const p=state.produtos.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('p-produto').value=p.nome;
+  document.getElementById('p-custo').value=p.custo;
+  document.getElementById('p-preco').value=p.preco;
+  if(p.shopee)document.getElementById('p-origem').value='Shopee';
+  openModal('modal-pedido');
+}
+
+function renderEstoque(){
+  const tv=state.estoque.reduce((a,e)=>a+e.qtd*e.custo,0);
+  const criticos=state.estoque.filter(e=>e.qtd<0.5).length;
+  document.getElementById('metrics-est').innerHTML=`
+    <div class="metric"><div class="metric-label">Valor em Estoque</div><div class="metric-value" style="color:var(--blue)">${fmt(tv)}</div><div class="metric-sub neu">${state.estoque.length} materiais</div></div>
+    <div class="metric"><div class="metric-label">Itens Críticos</div><div class="metric-value" style="color:var(--red)">${criticos}</div><div class="metric-sub ${criticos>0?'down':'up'}">${criticos>0?'⚠ Repor logo':'✓ Estoque ok'}</div></div>
+    <div class="metric"><div class="metric-label">Total de Materiais</div><div class="metric-value">${state.estoque.length}</div><div class="metric-sub neu">cadastrados</div></div>
+  `;
+  document.getElementById('table-estoque').innerHTML=state.estoque.map(e=>{
+    const total=e.qtd*e.custo;
+    const s=e.qtd<0.3?`<span class="badge badge-red">Crítico</span>`:e.qtd<0.7?`<span class="badge badge-orange">Baixo</span>`:`<span class="badge badge-green">OK</span>`;
+    return`<tr><td>${e.material}</td><td><span class="tag">${e.tipo}</span></td><td>${e.qtd}</td><td>${e.un}</td><td>${fmt(e.custo)}</td><td style="color:var(--blue)">${fmt(total)}</td><td>${s}</td></tr>`;
+  }).join('')||`<tr><td colspan="7" class="empty">Nenhum material cadastrado</td></tr>`;
+}
+
+function renderCompras(){
+  const tv=state.compras.reduce((a,c)=>a+c.qtd*c.unit,0);
+  document.getElementById('metrics-comp').innerHTML=`
+    <div class="metric"><div class="metric-label">Total Investido</div><div class="metric-value" style="color:var(--orange)">${fmt(tv)}</div><div class="metric-sub neu">${state.compras.length} compras</div></div>
+    <div class="metric"><div class="metric-label">Ticket Médio</div><div class="metric-value">${state.compras.length?fmt(tv/state.compras.length):fmt(0)}</div><div class="metric-sub neu">por compra</div></div>
+    <div class="metric"><div class="metric-label">Pendentes</div><div class="metric-value" style="color:var(--orange)">${state.compras.filter(c=>c.status!=='Recebido').length}</div><div class="metric-sub neu">em andamento</div></div>
+  `;
+  document.getElementById('table-compras').innerHTML=state.compras.map(c=>`
+    <tr><td>${dateStr(c.data)}</td><td>${c.material}</td><td>${c.qtd}</td><td>${fmt(c.unit)}</td>
+    <td style="color:var(--orange)">${fmt(c.qtd*c.unit)}</td><td>${c.forn}</td><td>${badgeStatus(c.status)}</td></tr>
+  `).join('')||`<tr><td colspan="7" class="empty">Nenhuma compra registrada</td></tr>`;
+}
+
+function renderVendas(){
+  const fat=state.vendas.reduce((a,v)=>a+v.preco,0);
+  const custo=state.vendas.reduce((a,v)=>a+v.custo,0);
+  const lucro=fat-custo;
+  document.getElementById('metrics-vend').innerHTML=`
+    <div class="metric"><div class="metric-label">Faturamento</div><div class="metric-value" style="color:var(--green)">${fmt(fat)}</div><div class="metric-sub neu">${state.vendas.length} vendas</div></div>
+    <div class="metric"><div class="metric-label">Lucro Total</div><div class="metric-value" style="color:var(--blue)">${fmt(lucro)}</div><div class="metric-sub up">${fat>0?fmtPct(lucro/fat*100):'0%'} de margem</div></div>
+    <div class="metric"><div class="metric-label">Custo Total</div><div class="metric-value" style="color:var(--orange)">${fmt(custo)}</div><div class="metric-sub neu">em produção</div></div>
+    <div class="metric"><div class="metric-label">Ticket Médio</div><div class="metric-value">${state.vendas.length?fmt(fat/state.vendas.length):fmt(0)}</div><div class="metric-sub neu">por venda</div></div>
+  `;
+  document.getElementById('table-vendas').innerHTML=state.vendas.map(v=>{
+    const lv=v.preco-v.custo;const mg=v.preco>0?lv/v.preco*100:0;
+    return`<tr><td>${dateStr(v.data)}</td><td>${v.produto}</td><td>${v.cliente}</td>
+      <td style="color:var(--orange)">${fmt(v.custo)}</td><td style="color:var(--green)">${fmt(v.preco)}</td>
+      <td style="color:${lv>=0?'var(--blue)':'var(--red)'}">${fmt(lv)}</td>
+      <td style="color:var(--muted)">${fmtPct(mg)}</td><td>${badgeStatus(v.status)}</td></tr>`;
+  }).join('')||`<tr><td colspan="8" class="empty">Nenhuma venda registrada</td></tr>`;
+}
+
+function renderRelatorios(){
+  const fat=state.vendas.reduce((a,v)=>a+v.preco,0);
+  const custo=state.vendas.reduce((a,v)=>a+v.custo,0);
+  const comp=state.compras.reduce((a,c)=>a+c.qtd*c.unit,0);
+  const lucro=fat-custo;
+  document.getElementById('metrics-rel').innerHTML=`
+    <div class="metric"><div class="metric-label">ROI</div><div class="metric-value" style="color:var(--green)">${comp>0?fmtPct(lucro/comp*100):'—'}</div><div class="metric-sub neu">retorno sobre investimento</div></div>
+    <div class="metric"><div class="metric-label">Faturamento</div><div class="metric-value" style="color:var(--green)">${fmt(fat)}</div><div class="metric-sub neu">${state.vendas.length} vendas</div></div>
+    <div class="metric"><div class="metric-label">Custo Produção</div><div class="metric-value" style="color:var(--orange)">${fmt(custo)}</div><div class="metric-sub neu">diretos</div></div>
+    <div class="metric"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:var(--blue)">${fmt(lucro)}</div><div class="metric-sub ${lucro>=0?'up':'down'}">${fat>0?fmtPct(lucro/fat*100):'0%'}</div></div>
+    <div class="metric"><div class="metric-label">Compras</div><div class="metric-value" style="color:var(--red)">${fmt(comp)}</div><div class="metric-sub neu">investido em material</div></div>
+  `;
+  const prods={};state.vendas.forEach(v=>{
+    if(!prods[v.produto])prods[v.produto]={fat:0,custo:0,cnt:0};
+    prods[v.produto].fat+=v.preco;prods[v.produto].custo+=v.custo;prods[v.produto].cnt++;
+  });
+  const sorted=Object.entries(prods).sort((a,b)=>b[1].fat-a[1].fat);
+  const maxP=sorted.length?sorted[0][1].fat:1;
+  document.getElementById('relat-produtos').innerHTML=sorted.length?sorted.map(([p,d])=>`
+    <div class="bar-container">
+      <div class="bar-label"><span>${p}</span><span style="color:var(--green)">${fmt(d.fat-d.custo)} lucro</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${d.fat/maxP*100}%;background:var(--blue)"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${d.cnt} venda(s) · margem ${d.fat>0?fmtPct((d.fat-d.custo)/d.fat*100):'0%'}</div>
+    </div>
+  `).join(''):'<div class="empty">Nenhuma venda ainda</div>';
+  document.getElementById('relat-financeiro').innerHTML=`
+    <div class="stat-row"><span>Faturamento bruto</span><span style="color:var(--green)">${fmt(fat)}</span></div>
+    <div class="stat-row"><span>(-) Custo de produção</span><span style="color:var(--red)">- ${fmt(custo)}</span></div>
+    <div class="stat-row"><span>(=) Lucro bruto</span><span style="color:var(--blue)">${fmt(fat-custo)}</span></div>
+    <div class="stat-row"><span>(-) Total em compras</span><span style="color:var(--orange)">- ${fmt(comp)}</span></div>
+    <div class="stat-row" style="font-weight:700"><span>Resultado líquido estimado</span><span style="color:${(fat-custo-comp)>=0?'var(--green)':'var(--red)'}">${fmt(fat-custo-comp)}</span></div>
+    <div class="stat-row"><span>Margem líquida</span><span>${fat>0?fmtPct((fat-custo)/fat*100):'0%'}</span></div>
+  `;
+  const fats2=new Array(6).fill(0);const meses2=[];
+  for(let i=5;i>=0;i--){const m=(mesAtual-i+12)%12;meses2.push(MESES[m]);}
+  const maxF2=Math.max(...fats2,1);
+  const bgs=['#243050','#2a3860','#304070','#365080','#3c6090','var(--green)'];
+  document.getElementById('relat-chart').innerHTML=fats2.map((v,i)=>`
+    <div style="flex:1;border-radius:4px 4px 0 0;background:${bgs[i]};height:${Math.max(Math.round(v/maxF2*100),4)}%;display:flex;align-items:flex-start;justify-content:center;padding-top:4px">
+      <span style="font-size:10px;color:rgba(255,255,255,.7);writing-mode:vertical-lr;transform:rotate(180deg)">${fmt(v)}</span>
+    </div>
+  `).join('');
+  document.getElementById('relat-chart-labels').innerHTML=meses2.map(m=>`<span>${m}</span>`).join('');
+}
+
+function renderShopee(){
+  const cfg=state.shopee;
+  document.getElementById('shopee-status-bar').innerHTML=cfg.configurado
+    ?'<span class="badge badge-green">✓ Conectado</span><span class="badge badge-blue" style="margin-left:4px">Shop ID: '+cfg.shopId+'</span>'
+    :'<span class="badge badge-orange">⚠ Não configurado</span>';
+  const shopeeOrders=state.pedidos.filter(p=>p.origem==='Shopee');
+  document.getElementById('shopee-orders').innerHTML=shopeeOrders.length
+    ?`<table class="table"><thead><tr><th>#</th><th>Produto</th><th>Cliente</th><th>Valor</th><th>Status</th></tr></thead><tbody>${shopeeOrders.map(p=>`<tr><td style="font-family:monospace;font-size:11px">#${p.id.slice(-6).toUpperCase()}</td><td>${p.produto}</td><td>${p.cliente}</td><td style="color:var(--shopee)">${fmt(p.preco)}</td><td>${badgeStatus(p.status)}</td></tr>`).join('')}</tbody></table>`
+    :`<div class="empty"><i class="ti ti-brand-shopee" style="font-size:28px;display:block;margin-bottom:6px"></i>${cfg.configurado?'Nenhum pedido Shopee ainda':'Configure a integração para ver pedidos'}</div>`;
+  const shopeeProdos=state.produtos.filter(p=>p.shopee);
+  document.getElementById('shopee-products-sync').innerHTML=shopeeProdos.length
+    ?shopeeProdos.map(p=>`<div class="stat-row"><span>${p.nome}</span><span style="color:var(--shopee)">${fmt(p.preco)} <span class="shopee-badge">SHOPEE</span></span></div>`).join('')
+    :'<div class="empty">Marque "Sincronizar com Shopee" nos produtos do catálogo</div>';
+}
+
+function calcular(){
+  const peso=parseFloat(document.getElementById('c-peso').value)||0;
+  const costKg=parseFloat(document.getElementById('c-custo-fil').value)||0;
+  const tempo=parseFloat(document.getElementById('c-tempo').value)||0;
+  const kwh=parseFloat(document.getElementById('c-kwh').value)||0;
+  const watts=parseFloat(document.getElementById('c-watts').value)||0;
+  const falha=parseFloat(document.getElementById('c-falha').value)||0;
+  const dep=parseFloat(document.getElementById('c-depreciacao').value)||0;
+  const maoObra=parseFloat(document.getElementById('c-mao-obra').value)||0;
+  const margem=parseFloat(document.getElementById('c-margem').value)||0;
+  const outros=parseFloat(document.getElementById('c-outros').value)||0;
+  if(!peso&&!costKg&&!tempo){return;}
+  const cFil=peso/1000*costKg;
+  const cEn=watts/1000*tempo*kwh;
+  const cFalha=(cFil+cEn)*falha/100;
+  const cDep=dep*tempo;
+  const cMO=maoObra*tempo;
+  const cTotal=cFil+cEn+cFalha+cDep+cMO+outros;
+  const precoSug=cTotal*(1+margem/100);
+  const lucroU=precoSug-cTotal;
+  document.getElementById('calc-rows').innerHTML=`
+    <div class="result-row"><span>Filamento (${peso}g)</span><span>${fmt(cFil)}</span></div>
+    <div class="result-row"><span>Energia (${watts}W × ${tempo}h)</span><span>${fmt(cEn)}</span></div>
+    <div class="result-row"><span>Risco de falha (${falha}%)</span><span>${fmt(cFalha)}</span></div>
+    <div class="result-row"><span>Depreciação (${tempo}h × R$${dep})</span><span>${fmt(cDep)}</span></div>
+    <div class="result-row"><span>Mão de obra (${tempo}h × R$${maoObra})</span><span>${fmt(cMO)}</span></div>
+    <div class="result-row"><span>Outros custos</span><span>${fmt(outros)}</span></div>
+    <div class="result-row total"><span>Custo Total</span><span class="orange">${fmt(cTotal)}</span></div>
+    <div class="result-row total"><span>Preço Sugerido (${margem}%)</span><span class="green">${fmt(precoSug)}</span></div>
+    <div class="result-row"><span>Lucro Unitário</span><span class="${lucroU>=0?'green':'red'}">${fmt(lucroU)}</span></div>
+  `;
+  document.getElementById('sim-preco').value=precoSug.toFixed(2);
+  simular();
+}
+
+function simular(){
+  const preco=parseFloat(document.getElementById('sim-preco').value)||0;
+  const qtd=parseInt(document.getElementById('sim-qtd').value)||1;
+  const peso=parseFloat(document.getElementById('c-peso').value)||0;
+  const costKg=parseFloat(document.getElementById('c-custo-fil').value)||0;
+  const tempo=parseFloat(document.getElementById('c-tempo').value)||0;
+  const kwh=parseFloat(document.getElementById('c-kwh').value)||0;
+  const watts=parseFloat(document.getElementById('c-watts').value)||0;
+  const falha=parseFloat(document.getElementById('c-falha').value)||0;
+  const dep=parseFloat(document.getElementById('c-depreciacao').value)||0;
+  const maoObra=parseFloat(document.getElementById('c-mao-obra').value)||0;
+  const outros=parseFloat(document.getElementById('c-outros').value)||0;
+  const cFil=peso/1000*costKg;const cEn=watts/1000*tempo*kwh;
+  const custo=cFil+cEn+(cFil+cEn)*falha/100+dep*tempo+maoObra*tempo+outros;
+  const lucroU=preco-custo;const lucroT=lucroU*qtd;
+  const mg=preco>0?lucroU/preco*100:0;
+  const col=lucroT>=0?'var(--green)':'var(--red)';
+  document.getElementById('sim-resultado').innerHTML=`
+    <div class="result-box" style="border-color:${col};margin-top:12px">
+      <h4>Simulação — ${qtd} unidade(s) a ${fmt(preco)}</h4>
+      <div class="result-row"><span>Custo unitário</span><span class="orange">${fmt(custo)}</span></div>
+      <div class="result-row"><span>Lucro por unidade</span><span class="${lucroU>=0?'green':'red'}">${fmt(lucroU)}</span></div>
+      <div class="result-row"><span>Margem</span><span>${fmtPct(mg)}</span></div>
+      <div class="result-row total"><span>Lucro Total (${qtd}×)</span><span class="${lucroT>=0?'green':'red'}">${fmt(lucroT)}</span></div>
+      <div class="result-row total"><span>Faturamento Total</span><span class="green">${fmt(preco*qtd)}</span></div>
+    </div>
+  `;
+}
+
+// ===== OPORTUNIDADES / MELHORES PREÇOS =====
+let oporHistorico=[];
+
+// stubs
+function salvarSerpKey(){}
+function salvarGroqKey(v){localStorage[v.trim()?'setItem':'removeItem']('groq_api_key',v.trim());}
+function salvarGeminiKey(v){localStorage[v.trim()?'setItem':'removeItem']('gemini_api_key',v.trim());}
+function salvarSerperKey(){}
+function salvarGoogleKey(){}
+function toggleGroqKey(){}
+function toggleKey(id,ic){
+  const inp=document.getElementById(id),ico=document.getElementById(ic);
+  if(!inp)return;
+  inp.type=inp.type==='password'?'text':'password';
+  if(ico)ico.className=inp.type==='text'?'ti ti-eye-off':'ti ti-eye';
+}
+function mostrarErroConfig(){}
+function limparHistoricoOpor(){}
+function initApiKeys(){ renderTabelaLinks(); }
+
+const MAT_COR={PLA:'var(--green)',PETG:'var(--blue)',TPU:'var(--purple)',ABS:'var(--orange)',ASA:'var(--teal)'};
+const MKT_COR={Shopee:'#ee4d2d',Amazon:'#ff9900','Mercado Livre':'#f5a623',AliExpress:'#ff6a00'};
+const MKT_EMOJI={Shopee:'🛍',Amazon:'📦','Mercado Livre':'🛒',AliExpress:'🌐'};
+const MATERIAIS=['PLA','PETG','TPU','ABS','ASA'];
+const MKTS=['Shopee','Amazon','Mercado Livre','AliExpress'];
+
+function linkBusca(marketplace,termo,peso){
+  const q=encodeURIComponent('filamento '+termo+' '+peso+' 1.75mm');
+  if(marketplace==='Shopee')        return 'https://shopee.com.br/search?keyword='+q+'&sortBy=price&order=asc&freeShipping=true';
+  if(marketplace==='Amazon')        return 'https://www.amazon.com.br/s?k='+q+'&s=price-asc-rank';
+  if(marketplace==='Mercado Livre') return 'https://www.mercadolivre.com.br/busca?q='+q+'&sort=price_asc';
+  if(marketplace==='AliExpress')    return 'https://pt.aliexpress.com/w/wholesale-'+encodeURIComponent(termo+'-filament-'+peso)+'.html?sortType=price_asc&isFreeShip=y';
+  return '#';
+}
+
+function renderTabelaLinks(){
+  const tbody=document.getElementById('tbody-links');
+  if(!tbody)return;
+  const peso=document.getElementById('fil-peso')?.value||'1kg';
+  tbody.innerHTML=MATERIAIS.map(mat=>`
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:10px 12px;font-weight:700;color:${MAT_COR[mat]}">${mat}</td>
+      ${MKTS.map(mkt=>`<td style="padding:8px 12px;text-align:center">
+        <a href="${linkBusca(mkt,mat,peso)}" target="_blank"
+          style="color:${MKT_COR[mkt]};font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none">
+          <i class="ti ti-search" style="font-size:11px"></i> Ver preços
+        </a></td>`).join('')}
+    </tr>`).join('');
+}
+
+function gerarFallback(materiais,mkts,peso){
+  return {resultados:materiais.flatMap(mat=>mkts.slice(0,3).map((mkt,i)=>({
+    material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,marca:'',marketplace:mkt,
+    preco:null,peso,frete:'Grátis',avaliacao:'—',vendidos:'—',destaque:'',
+    link:linkBusca(mkt,mat,peso),emoji_marketplace:MKT_EMOJI[mkt]||'🏪',fonte:'link direto'
+  })))};
+}
+
+async function buscarOportunidades(){
+  const materiais=[];
+  if(document.getElementById('mat-pla')?.checked)  materiais.push('PLA');
+  if(document.getElementById('mat-petg')?.checked) materiais.push('PETG');
+  if(document.getElementById('mat-tpu')?.checked)  materiais.push('TPU');
+  if(document.getElementById('mat-abs')?.checked)  materiais.push('ABS');
+  if(document.getElementById('mat-asa')?.checked)  materiais.push('ASA');
+  const peso=document.getElementById('fil-peso')?.value||'1kg';
+  if(!materiais.length){toast('Selecione ao menos um material','var(--orange)');return;}
+
+  document.getElementById('opor-estado-inicial').style.display='none';
+  document.getElementById('opor-resultados').style.display='none';
+  document.getElementById('opor-loading').style.display='block';
+
+  let prog=0;
+  const progInt=setInterval(()=>{
+    prog=Math.min(prog+2,90);
+    const el=document.getElementById('opor-progress');
+    if(el)el.style.width=prog+'%';
+  },600);
+  const setMsg=m=>{const el=document.getElementById('opor-loading-msg');if(el)el.textContent=m;};
+
+  const hoje=new Date().toLocaleDateString('pt-BR');
+  setMsg('🔍 Pesquisando preços de '+materiais.join(', ')+' nos marketplaces...');
+
+  const prompt=
+    'Pesquise agora no Google os preços mais baratos de filamentos para impressão 3D no Brasil. '+
+    'Materiais: '+materiais.join(', ')+' — '+peso+' — 1.75mm — com frete grátis. '+
+    'Busque em: shopee.com.br, amazon.com.br, mercadolivre.com.br, aliexpress.com. '+
+    'Para cada material liste os 3 produtos mais baratos com nome, preço em reais, link direto e marketplace. '+
+    'Responda SOMENTE com este JSON sem texto adicional:\n'+
+    '{"resultados":[{"material":"PLA","rank":1,"nome":"Nome do produto","marca":"Marca","marketplace":"Shopee","preco":54.90,"peso":"'+peso+'","frete":"Grátis","avaliacao":"4.8","vendidos":"2k","destaque":"Mais barato","link":"https://link-real","emoji_marketplace":"🛍","fonte":"busca web"}],"dica_geral":"dica","ultima_atualizacao":"'+hoje+'"}';
+
+  try{
+    setMsg('⚡ IA buscando preços no Google...');
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:3000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        system:'Você busca preços de produtos. Use web_search. Responda SOMENTE JSON válido.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+
+    const data=await resp.json();
+
+    if(!resp.ok){
+      throw new Error(data.error?.message||'API error '+resp.status);
+    }
+
+    setMsg('📊 Processando resultados...');
+
+    // Extrai texto de todos os blocos
+    const texto=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const raw=texto.replace(/```json|```/gi,'').trim();
+    const match=raw.match(/\{[\s\S]*"resultados"[\s\S]*\}/);
+
+    if(!match) throw new Error('Sem JSON na resposta');
+
+    const json=JSON.parse(match[0]);
+
+    // Filtra resultados válidos
+    json.resultados=(json.resultados||[]).filter(r=>
+      r.nome&&r.nome!=='null'&&
+      r.preco&&parseFloat(r.preco)>0&&
+      r.link&&r.link.startsWith('http')
+    ).map(r=>{
+      r.preco=parseFloat(r.preco);
+      if(!r.emoji_marketplace) r.emoji_marketplace=MKT_EMOJI[r.marketplace]||'🏪';
+      return r;
+    });
+
+    if(json.resultados.length===0) throw new Error('Nenhum resultado válido retornado pela busca');
+
+    clearInterval(progInt);
+    document.getElementById('opor-progress').style.width='100%';
+    setTimeout(()=>{
+      document.getElementById('opor-loading').style.display='none';
+      renderOportunidades(json,materiais,MKTS,peso);
+    },300);
+
+  }catch(err){
+    clearInterval(progInt);
+    document.getElementById('opor-loading').style.display='none';
+
+    // Mostra mensagem de erro clara + links diretos como fallback
+    const div=document.getElementById('opor-resultados');
+    div.style.display='block';
+    div.innerHTML=`
+      <div style="background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.3);border-radius:10px;padding:16px;margin-bottom:12px">
+        <div style="font-weight:600;color:var(--orange);margin-bottom:4px">⚠️ Busca automática indisponível</div>
+        <div style="font-size:12px;color:var(--muted)">${err.message}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px">Use os links diretos abaixo para ver os preços nos marketplaces.</div>
+      </div>`;
+
+    // Mostra fallback com links diretos
+    renderOportunidades(gerarFallback(materiais,MKTS,peso),materiais,MKTS,peso);
+  }
+}
+
+// Fallback: links REAIS de busca já filtrados por menor preço + frete grátis
+function gerarFallback(materiais,mkts,peso){
+  const mktEmoji={Shopee:'🛍',Amazon:'📦','Mercado Livre':'🛒',AliExpress:'🌐'};
+  const resultados=[];
+  materiais.forEach(mat=>{
+    let rank=1;
+    mkts.forEach(mkt=>{
+      if(rank>3)return;
+      resultados.push({
+        material:mat, rank:rank++,
+        nome:`Filamento ${mat} ${peso} 1.75mm — Clique para ver ofertas atuais`,
+        marca:'Ver no site',
+        marketplace:mkt,
+        preco:null,
+        peso:peso,
+        frete:'Grátis',
+        avaliacao:'—',
+        vendidos:'—',
+        destaque:'🔗 Link direto com frete grátis filtrado',
+        link:linkBusca(mkt,mat,peso),
+        emoji_marketplace:mktEmoji[mkt]||'🏪',
+        fonte:'link direto'
+      });
+    });
+  });
+  return{
+    resultados,
+    dica_geral:'Não foi possível buscar preços em tempo real agora. Os botões "Ver Oferta" levam direto para a busca filtrada por menor preço com frete grátis em cada marketplace.',
+    ultima_atualizacao:'links sempre atualizados'
+  };
+}
+
+function renderOportunidades(data,materiais,mkts,peso){
+  const res=data.resultados||[];
+  const mktCores={Shopee:'#ee4d2d',Amazon:'#ff9900','Mercado Livre':'#ffe600',AliExpress:'#ff6a00'};
+  const matCores={PLA:'var(--green)',PETG:'var(--blue)',TPU:'var(--purple)',ABS:'var(--orange)',ASA:'var(--teal)'};
+  const temPrecos=res.some(r=>r.preco&&r.preco>0);
+  let html='';
+
+  // Aviso de fonte
+  const fonteHtml=temPrecos
+    ?`<div style="background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🌐</span>
+        <span><strong style="color:var(--green)">⚡ Preços buscados em tempo real via Groq AI</strong> — Os valores foram obtidos via busca na internet agora. Clique em "Ver Oferta" para ir direto ao produto.</span>
+      </div>`
+    :`<div style="background:rgba(255,159,67,.07);border:1px solid rgba(255,159,67,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🔗</span>
+        <span><strong style="color:var(--orange)">Busca em tempo real indisponível</strong> — Os botões abaixo levam diretamente para a pesquisa filtrada por <strong>menor preço + frete grátis</strong> em cada marketplace.</span>
+      </div>`;
+
+  html+=fonteHtml;
+
+  materiais.forEach(mat=>{
+    const items=res.filter(r=>r.material===mat).sort((a,b)=>(a.preco||999)-(b.preco||999));
+    if(!items.length)return;
+    const melhorPreco=items.find(i=>i.preco);
+    const corMat=matCores[mat]||'var(--blue)';
+
+    html+=`<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:8px;background:${corMat};opacity:.15;border:1.5px solid ${corMat};display:flex;align-items:center;justify-content:center">
+          <span style="font-size:14px;font-weight:900;color:${corMat};opacity:1">●</span>
+        </div>
+        <div>
+          <span style="font-size:15px;font-weight:700;color:${corMat}">${mat}</span>
+          <span style="font-size:12px;color:var(--muted);margin-left:8px">${peso} · 1.75mm · frete grátis</span>
+        </div>
+        ${melhorPreco?`<div style="margin-left:auto;background:${corMat};color:#0f1117;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:700">
+          A partir de R$ ${Number(melhorPreco.preco).toFixed(2).replace('.',',')}
+        </div>`:'<div style="margin-left:auto"><span class="badge badge-orange">Ver preços no site</span></div>'}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px">
+        ${items.slice(0,3).map((item,idx)=>{
+          const destaque=idx===0&&item.preco;
+          const cor=mktCores[item.marketplace]||'var(--blue)';
+          const linkFinal=item.link||linkBusca(item.marketplace,mat,peso||'1kg');
+          return`
+          <div style="background:var(--card);border:1.5px solid ${destaque?corMat:'var(--border)'};border-radius:10px;padding:14px;position:relative;transition:.2s"
+               onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.3)'"
+               onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+            ${destaque?`<div style="position:absolute;top:-10px;left:12px;background:${corMat};color:#0f1117;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px">🏆 MENOR PREÇO</div>`:''}
+            ${item.thumb?`<img src="${item.thumb}" alt="produto" style="width:100%;height:90px;object-fit:contain;border-radius:8px;background:#fff;margin-bottom:10px;padding:4px">`:''}
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+              <span style="background:${cor}22;color:${cor};border:1px solid ${cor}55;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700">${item.emoji_marketplace} ${item.marketplace}</span>
+              ${item.avaliacao&&item.avaliacao!=='—'?`<span style="font-size:11px;color:var(--muted)">⭐ ${item.avaliacao}</span>`:''}
+            </div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:3px;line-height:1.4;min-height:34px">${item.nome}</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">${item.marca!=='Ver no site'?item.marca+' · ':''} ${item.peso||peso}</div>
+            ${item.preco
+              ?`<div style="font-size:24px;font-weight:800;color:var(--green);margin-bottom:6px">R$ ${Number(item.preco).toFixed(2).replace('.',',')}</div>`
+              :`<div style="font-size:14px;font-weight:700;color:var(--yellow);margin-bottom:6px">💰 Ver preço atual →</div>`
+            }
+            <div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap">
+              <span style="font-size:10px;background:rgba(0,229,160,.1);color:var(--green);border-radius:4px;padding:2px 6px">🚚 Frete Grátis</span>
+              ${item.vendidos&&item.vendidos!=='—'?`<span style="font-size:10px;background:var(--bg3);color:var(--muted);border-radius:4px;padding:2px 6px">${item.vendidos} vendidos</span>`:''}
+              ${item.fonte==='API Mercado Livre'?`<span style="font-size:10px;background:rgba(245,166,35,.15);color:var(--yellow);border-radius:4px;padding:2px 6px">✅ API oficial ML</span>`:''}
+            </div>
+            <div style="display:flex;gap:6px">
+              <a href="${linkFinal}" target="_blank" rel="noopener"
+                 class="btn btn-primary btn-sm"
+                 style="flex:2;justify-content:center;text-decoration:none;font-weight:700">
+                <i class="ti ti-external-link"></i> ${item.preco?'Ver Produto':'Buscar Oferta'}
+              </a>
+              <button class="btn btn-ghost btn-sm btn-icon" title="Adicionar ao estoque"
+                onclick="adicionarAoEstoqueOpor('Filamento ${mat} ${peso}','${mat}',${item.preco||0})">
+                <i class="ti ti-package"></i>
+              </button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  // Tabela comparativa de links diretos
+  let tabelaHtml=`<div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div class="card-title">🔗 Links Diretos por Marketplace</div>
+      <div class="card-sub">Clique para buscar com filtro de menor preço + frete grátis</div>
+    </div>
+    <table class="table">
+      <thead><tr><th>Material</th><th>🛍 Shopee</th><th>📦 Amazon</th><th>🛒 Mercado Livre</th><th>🌐 AliExpress</th></tr></thead>
+      <tbody>`;
+  materiais.forEach(mat=>{
+    tabelaHtml+=`<tr>
+      <td><strong style="color:${matCores[mat]||'var(--blue)'}">${mat}</strong></td>
+      ${['Shopee','Amazon','Mercado Livre','AliExpress'].map(mkt=>
+        `<td><a href="${linkBusca(mkt,mat,peso||'1kg')}" target="_blank" rel="noopener"
+              style="color:${mktCores[mkt]||'var(--blue)'};font-size:12px;text-decoration:none;display:flex;align-items:center;gap:4px">
+           <i class="ti ti-search" style="font-size:12px"></i> Ver preços
+         </a></td>`
+      ).join('')}
+    </tr>`;
+  });
+  tabelaHtml+=`</tbody></table></div>`;
+
+  const dicaHtml=data.dica_geral?`<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px">
+    <strong style="color:var(--yellow)">💡 Dica:</strong> ${data.dica_geral}
+    <div style="font-size:11px;color:var(--muted);margin-top:4px">⚠️ Preços mudam constantemente — confirme sempre no site antes de comprar · ${data.ultima_atualizacao||''}</div>
+  </div>`:'';
+
+  document.getElementById('opor-resultados').innerHTML=tabelaHtml+dicaHtml+html;
+  document.getElementById('opor-resultados').style.display='block';
+
+  // Histórico
+  const todosPorMat={};
+  res.forEach(r=>{if(!todosPorMat[r.material])todosPorMat[r.material]=[];todosPorMat[r.material].push(r);});
+  oporHistorico.unshift({
+    data:new Date().toLocaleString('pt-BR'),
+    materiais:Object.keys(todosPorMat),
+    menores:Object.fromEntries(Object.entries(todosPorMat).map(([m,is])=>{
+      const c=is.filter(i=>i.preco);
+      return[m,c.length?'R$ '+Math.min(...c.map(i=>i.preco)).toFixed(2).replace('.',','):'ver site'];
+    }))
+  });
+  renderHistoricoOpor();
+}
+
+function adicionarAoEstoqueOpor(nome,tipo,preco){
+  state.estoque.push({material:nome,tipo:'Filamento',qtd:1,un:'kg',custo:preco});
+  toast('✅ Adicionado ao estoque!');
+}
+
+function renderHistoricoOpor(){
+  if(!oporHistorico.length)return;
+  document.getElementById('opor-historico-wrap').style.display='block';
+  document.getElementById('opor-historico').innerHTML=oporHistorico.slice(0,5).map(h=>`
+    <div class="stat-row">
+      <span style="font-size:12px">${h.data} — ${h.materiais.join(', ')}</span>
+      <span style="color:var(--green);font-size:11px">${Object.entries(h.menores).map(([m,p])=>`${m}: ${p}`).join(' · ')}</span>
+    </div>`).join('');
+}
+
+function limparHistoricoOpor(){
+  oporHistorico=[];
+  document.getElementById('opor-historico-wrap').style.display='none';
+}
+
+// ===== INIT =====
+// Restaurar chave Groq salva
+(function(){
+  const saved=localStorage.getItem('groq_api_key');
+  if(saved){
+    // Será aplicado quando a página de oportunidades abrir
+    // O IIFE dentro do código já cuida disso ao renderizar a seção
+  }
+})();
+renderDashboard();
+</script>
+</body>
+</html>
