@@ -562,64 +562,112 @@ app.listen(3000);</div>
         <div style="font-size:36px">🛒</div>
         <div style="flex:1">
           <div style="font-size:17px;font-weight:700;color:var(--blue)">Cotação de Preços — Google Shopping</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px">SerpAPI · Google Shopping real · Shopee · Amazon · Mercado Livre · AliExpress · Sem CAPTCHA</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">SerpAPI + Cloudflare Worker proxy · Preços reais · Sem CAPTCHA · GitHub Pages compatível</div>
         </div>
         <button class="btn" style="background:var(--blue);color:#fff;font-weight:700;min-width:140px" onclick="buscarOportunidades()">
           <i class="ti ti-search"></i> Buscar Preços
         </button>
       </div>
 
-      <!-- SerpAPI Key -->
+      <!-- Configuração -->
       <div class="card" style="margin-bottom:16px;border-color:rgba(66,133,244,.3)">
-        <div class="card-header" style="margin-bottom:12px">
+        <div class="card-header" style="margin-bottom:14px">
           <div>
             <div class="card-title" style="display:flex;align-items:center;gap:8px">
               <i class="ti ti-brand-google" style="color:#4285F4;font-size:18px"></i>
-              SerpAPI — Google Shopping em Tempo Real
+              Configurar SerpAPI + Cloudflare Worker
             </div>
-            <div class="card-sub">100 buscas/mês grátis · Sem CAPTCHA · Preços reais · Funciona no GitHub Pages</div>
+            <div class="card-sub">Configure uma vez — funciona para sempre no GitHub Pages</div>
           </div>
-          <a href="https://serpapi.com/users/sign_up" target="_blank" class="btn btn-ghost btn-sm" style="border-color:rgba(66,133,244,.4);color:var(--blue)">
-            <i class="ti ti-external-link"></i> Criar conta grátis
-          </a>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div style="flex:1;position:relative">
-            <input type="password" id="serp-api-key"
-              placeholder="Cole sua API Key aqui — serpapi.com → Dashboard → API Key"
-              style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 40px 9px 14px;font-size:13px;width:100%;outline:none;font-family:monospace"
-              oninput="salvarSerpKey(this.value)"
-              onfocus="this.style.borderColor='var(--blue)'"
+
+        <!-- Passo a passo -->
+        <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:12px">⚡ Configuração em 3 passos (5 minutos, 100% grátis)</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--muted);line-height:1.8">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+              <div><strong style="color:var(--text)">Crie sua conta SerpAPI</strong> — acesse <a href="https://serpapi.com/users/sign_up" target="_blank" style="color:var(--blue)">serpapi.com/users/sign_up</a> e copie sua API Key do Dashboard. <span style="color:var(--green)">(100 buscas/mês grátis)</span></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+              <div>
+                <strong style="color:var(--text)">Crie um Cloudflare Worker gratuito</strong> — acesse <a href="https://workers.cloudflare.com" target="_blank" style="color:var(--blue)">workers.cloudflare.com</a>, faça login/cadastro gratuito, clique em <strong style="color:var(--text)">Create Worker</strong> e substitua todo o código pelo código abaixo:
+                <div style="background:#0d0d0d;border:1px solid #333;border-radius:8px;padding:10px;margin-top:8px;font-family:monospace;font-size:11px;color:#4ade80;position:relative">
+                  <button onclick="copiarWorker()" style="position:absolute;right:8px;top:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer">
+                    <i class="ti ti-copy"></i> Copiar
+                  </button>
+                  <pre id="worker-code" style="margin:0;white-space:pre-wrap;padding-right:60px">export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const serpUrl = "https://serpapi.com/search.json" + url.search;
+    const resp = await fetch(serpUrl);
+    const data = await resp.text();
+    return new Response(data, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET"
+      }
+    });
+  }
+}</pre>
+                </div>
+                <div style="margin-top:6px">Clique em <strong style="color:var(--text)">Deploy</strong> e copie a URL do worker (ex: <code style="color:var(--green)">https://meu-worker.seuuser.workers.dev</code>)</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--green);color:#0f1117;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+              <div><strong style="color:var(--text)">Cole as chaves abaixo</strong> e clique em Buscar Preços!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px">
+              <i class="ti ti-brand-google" style="color:#4285F4"></i>
+              <strong>SerpAPI Key</strong>
+              <span style="background:rgba(0,229,160,.1);color:var(--green);border-radius:4px;padding:1px 5px;font-size:10px">obrigatório</span>
+            </div>
+            <div style="position:relative">
+              <input type="password" id="serp-api-key"
+                placeholder="Sua API Key do serpapi.com/dashboard"
+                style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 36px 8px 12px;font-size:12px;width:100%;outline:none;font-family:monospace"
+                oninput="salvarSerpKey(this.value)"
+                onfocus="this.style.borderColor='#4285F4'"
+                onblur="this.style.borderColor='var(--border)'">
+              <button onclick="toggleKey('serp-api-key','eye-serp')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">
+                <i class="ti ti-eye" id="eye-serp"></i>
+              </button>
+            </div>
+            <div id="serp-status" style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-circle-x" style="color:var(--red)"></i> Não configurada</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px">
+              <i class="ti ti-cloud" style="color:var(--orange)"></i>
+              <strong>Cloudflare Worker URL</strong>
+              <span style="background:rgba(0,229,160,.1);color:var(--green);border-radius:4px;padding:1px 5px;font-size:10px">obrigatório</span>
+            </div>
+            <input type="text" id="worker-url"
+              placeholder="https://meu-worker.seuuser.workers.dev"
+              style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:12px;width:100%;outline:none;font-family:monospace"
+              oninput="salvarWorkerUrl(this.value)"
+              onfocus="this.style.borderColor='var(--orange)'"
               onblur="this.style.borderColor='var(--border)'">
-            <button onclick="toggleKey('serp-api-key','eye-serp')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">
-              <i class="ti ti-eye" id="eye-serp"></i>
-            </button>
-          </div>
-          <div id="serp-status" style="font-size:12px;color:var(--muted);white-space:nowrap;min-width:90px">
-            <i class="ti ti-circle-x" style="color:var(--red)"></i> Não config.
+            <div id="worker-status" style="font-size:11px;color:var(--muted);margin-top:4px"><i class="ti ti-circle-x" style="color:var(--red)"></i> Não configurada</div>
           </div>
         </div>
-        <details style="margin-top:10px">
-          <summary style="font-size:12px;color:var(--blue);cursor:pointer">📖 Como obter sua chave grátis</summary>
-          <div style="margin-top:8px;font-size:12px;color:var(--muted);line-height:2;background:var(--bg);border-radius:8px;padding:12px">
-            1. Acesse <a href="https://serpapi.com/users/sign_up" target="_blank" style="color:var(--blue)">serpapi.com/users/sign_up</a> e crie uma conta gratuita<br>
-            2. Confirme o e-mail e faça login no Dashboard<br>
-            3. Copie sua <strong style="color:var(--text)">API Key</strong> e cole no campo acima<br>
-            4. Suba o site no GitHub Pages e a API funcionará perfeitamente<br>
-            <span style="color:var(--green)">✓ 100 buscas/mês grátis · Sem cartão · Sem CAPTCHA · GitHub Pages compatível</span>
-          </div>
-        </details>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:5px">
+        <div style="font-size:11px;color:var(--muted);margin-top:10px;display:flex;align-items:center;gap:5px">
           <i class="ti ti-lock" style="font-size:11px"></i>
-          Chave salva só no seu navegador (localStorage). Nunca enviada a nenhum servidor nosso.
+          Chaves salvas só no seu navegador. Nunca enviadas a nenhum servidor nosso.
         </div>
       </div>
 
       <!-- Filtros -->
       <div class="card" style="margin-bottom:16px">
-        <div class="card-header" style="margin-bottom:10px">
-          <div class="card-title">Configurar busca</div>
-        </div>
+        <div class="card-header" style="margin-bottom:10px"><div class="card-title">Configurar busca</div></div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
           <div>
             <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Materiais</div>
@@ -649,34 +697,27 @@ app.listen(3000);</div>
           <div id="opor-progress" style="height:100%;background:var(--blue);border-radius:8px;width:0%;transition:width .4s"></div>
         </div>
       </div>
-
-      <!-- Estado inicial -->
-      <div id="opor-estado-inicial" style="text-align:center;padding:48px 24px;color:var(--muted)">
-        <div style="font-size:52px;margin-bottom:12px">🔍</div>
-        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Pronto para cotar preços!</div>
-        <div style="font-size:13px">Configure sua chave SerpAPI acima e clique em <strong style="color:var(--blue)">"Buscar Preços"</strong></div>
+      <div id="opor-estado-inicial" style="text-align:center;padding:40px 24px;color:var(--muted)">
+        <div style="font-size:48px;margin-bottom:12px">🔍</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Configure as chaves acima e clique Buscar Preços</div>
+        <div style="font-size:12px">Siga os 3 passos — leva menos de 5 minutos e funciona para sempre</div>
       </div>
-
-      <!-- Resultados -->
       <div id="opor-resultados" style="display:none"></div>
 
       <!-- Links diretos -->
       <div class="card" style="margin-top:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="card-title">🔗 Links diretos — menor preço + frete grátis</div>
-          <span style="font-size:11px;color:var(--muted)">Clique para abrir no marketplace</span>
         </div>
         <div style="overflow-x:auto">
           <table style="width:100%;border-collapse:collapse;font-size:13px">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border)">
-                <th style="text-align:left;padding:8px 12px;color:var(--muted)">Material</th>
-                <th style="padding:8px 12px;color:#ee4d2d">🛍 Shopee</th>
-                <th style="padding:8px 12px;color:#ff9900">📦 Amazon</th>
-                <th style="padding:8px 12px;color:#f5a623">🛒 Mercado Livre</th>
-                <th style="padding:8px 12px;color:#ff6a00">🌐 AliExpress</th>
-              </tr>
-            </thead>
+            <thead><tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:8px 12px;color:var(--muted)">Material</th>
+              <th style="padding:8px 12px;color:#ee4d2d">🛍 Shopee</th>
+              <th style="padding:8px 12px;color:#ff9900">📦 Amazon</th>
+              <th style="padding:8px 12px;color:#f5a623">🛒 Mercado Livre</th>
+              <th style="padding:8px 12px;color:#ff6a00">🌐 AliExpress</th>
+            </tr></thead>
             <tbody id="tbody-links"></tbody>
           </table>
         </div>
@@ -1632,7 +1673,22 @@ function simular(){
 // ===== OPORTUNIDADES / MELHORES PREÇOS =====
 let oporHistorico=[];
 
-// stubs compatibilidade
+function salvarSerpKey(val){
+  const v=val.trim();
+  localStorage[v?'setItem':'removeItem']('serp_api_key',v);
+  const st=document.getElementById('serp-status');
+  if(st) st.innerHTML=v
+    ?'<i class="ti ti-circle-check" style="color:var(--green)"></i> <span style="color:var(--green)">OK ✓</span>'
+    :'<i class="ti ti-circle-x" style="color:var(--red)"></i> Não configurada';
+}
+function salvarWorkerUrl(val){
+  const v=val.trim().replace(/\/$/,'');
+  localStorage[v?'setItem':'removeItem']('worker_url',v);
+  const st=document.getElementById('worker-status');
+  if(st) st.innerHTML=v
+    ?'<i class="ti ti-circle-check" style="color:var(--green)"></i> <span style="color:var(--green)">OK ✓</span>'
+    :'<i class="ti ti-circle-x" style="color:var(--red)"></i> Não configurada';
+}
 function salvarGroqKey(v){localStorage[v.trim()?'setItem':'removeItem']('groq_api_key',v.trim());}
 function salvarGeminiKey(v){localStorage[v.trim()?'setItem':'removeItem']('gemini_api_key',v.trim());}
 function salvarSerperKey(){}
@@ -1640,15 +1696,6 @@ function salvarGoogleKey(){}
 function toggleGroqKey(){}
 function mostrarErroConfig(){}
 function limparHistoricoOpor(){}
-
-function salvarSerpKey(val){
-  const v=val.trim();
-  localStorage[v?'setItem':'removeItem']('serp_api_key',v);
-  const st=document.getElementById('serp-status');
-  if(st) st.innerHTML=v
-    ?'<i class="ti ti-circle-check" style="color:var(--green)"></i> <span style="color:var(--green)">OK ✓</span>'
-    :'<i class="ti ti-circle-x" style="color:var(--red)"></i> Não config.';
-}
 function toggleKey(id,ic){
   const inp=document.getElementById(id),ico=document.getElementById(ic);
   if(!inp)return;
@@ -1657,8 +1704,17 @@ function toggleKey(id,ic){
 }
 function initApiKeys(){
   const sk=localStorage.getItem('serp_api_key');
+  const wk=localStorage.getItem('worker_url');
   if(sk){const el=document.getElementById('serp-api-key');if(el)el.value=sk;salvarSerpKey(sk);}
+  if(wk){const el=document.getElementById('worker-url');if(el)el.value=wk;salvarWorkerUrl(wk);}
   renderTabelaLinks();
+}
+
+function copiarWorker(){
+  const code=document.getElementById('worker-code')?.textContent||'';
+  navigator.clipboard.writeText(code).then(()=>toast('✅ Código copiado!','var(--green)')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('✅ Código copiado!','var(--green)');
+  });
 }
 
 const MAT_COR={PLA:'var(--green)',PETG:'var(--blue)',TPU:'var(--purple)',ABS:'var(--orange)',ASA:'var(--teal)'};
@@ -1675,7 +1731,6 @@ function linkBusca(marketplace,termo,peso){
   if(marketplace==='AliExpress')    return 'https://pt.aliexpress.com/w/wholesale-'+encodeURIComponent(termo+'-filament-'+peso)+'.html?sortType=price_asc&isFreeShip=y';
   return '#';
 }
-
 function renderTabelaLinks(){
   const tbody=document.getElementById('tbody-links');
   if(!tbody)return;
@@ -1690,7 +1745,6 @@ function renderTabelaLinks(){
         </a></td>`).join('')}
     </tr>`).join('');
 }
-
 function gerarFallback(materiais,mkts,peso){
   return {resultados:materiais.flatMap(mat=>mkts.slice(0,3).map((mkt,i)=>({
     material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,marca:'',marketplace:mkt,
@@ -1698,32 +1752,27 @@ function gerarFallback(materiais,mkts,peso){
     link:linkBusca(mkt,mat,peso),emoji_marketplace:MKT_EMOJI[mkt]||'🏪',fonte:'link direto'
   })))};
 }
-
-// Detecta marketplace pelo source/link retornado pelo SerpAPI
 function detectarMarketplace(item){
   const txt=((item.source||'')+(item.link||'')+(item.seller||'')).toLowerCase();
   if(txt.includes('shopee'))       return 'Shopee';
   if(txt.includes('amazon'))       return 'Amazon';
-  if(txt.includes('mercadolivre')||txt.includes('mercado livre')||txt.includes('meli')) return 'Mercado Livre';
+  if(txt.includes('mercadolivre')||txt.includes('mercado livre')) return 'Mercado Livre';
   if(txt.includes('aliexpress'))   return 'AliExpress';
   return item.source||'Outros';
 }
-
-// Extrai preço numérico de string como "R$ 54,90" ou "54.90"
 function extrairPreco(str){
-  if(!str) return null;
+  if(!str&&str!==0) return null;
   const s=str.toString().replace(/[^\d.,]/g,'').replace(',','.');
   const n=parseFloat(s);
   return isNaN(n)||n<=0?null:n;
 }
 
 async function buscarOportunidades(){
-  const KEY=(document.getElementById('serp-api-key')?.value||'').trim()||localStorage.getItem('serp_api_key')||'';
-  if(!KEY){
-    toast('⚠️ Configure sua chave SerpAPI — grátis em serpapi.com','var(--orange)');
-    document.getElementById('serp-api-key')?.focus();
-    return;
-  }
+  const SERP_KEY=(document.getElementById('serp-api-key')?.value||'').trim()||localStorage.getItem('serp_api_key')||'';
+  const WORKER_URL=(document.getElementById('worker-url')?.value||'').trim().replace(/\/$/,'')||localStorage.getItem('worker_url')||'';
+
+  if(!SERP_KEY){toast('⚠️ Configure sua chave SerpAPI','var(--orange)');document.getElementById('serp-api-key')?.focus();return;}
+  if(!WORKER_URL){toast('⚠️ Configure a URL do Cloudflare Worker','var(--orange)');document.getElementById('worker-url')?.focus();return;}
 
   const materiais=[];
   if(document.getElementById('mat-pla')?.checked)  materiais.push('PLA');
@@ -1739,105 +1788,35 @@ async function buscarOportunidades(){
   document.getElementById('opor-loading').style.display='block';
 
   let prog=0;
-  const progInt=setInterval(()=>{
-    prog=Math.min(prog+3,88);
-    const el=document.getElementById('opor-progress');
-    if(el)el.style.width=prog+'%';
-  },400);
+  const progInt=setInterval(()=>{prog=Math.min(prog+3,88);const el=document.getElementById('opor-progress');if(el)el.style.width=prog+'%';},400);
   const setMsg=m=>{const el=document.getElementById('opor-loading-msg');if(el)el.textContent=m;};
-
   const hoje=new Date().toLocaleDateString('pt-BR');
   const todosResultados=[];
 
   for(const mat of materiais){
     setMsg('🔍 Google Shopping: '+mat+' '+peso+'...');
-
-    const query='filamento '+mat+' '+peso+' 1.75mm';
-    // SerpAPI endpoint direto — funciona de qualquer origem com CORS habilitado
-    const url='https://serpapi.com/search.json?'+new URLSearchParams({
-      api_key:KEY,
+    const params=new URLSearchParams({
+      api_key:SERP_KEY,
       engine:'google_shopping',
-      q:query,
-      gl:'br',
-      hl:'pt',
-      num:'10',
-      tbs:'mr:1,price:1,ppr_max:350'
+      q:'filamento '+mat+' '+peso+' 1.75mm',
+      gl:'br',hl:'pt',num:'10'
     });
-
-    // Painel de debug — criado ANTES do fetch para capturar erros de CORS
-    let dbg=document.getElementById('serp-debug');
-    if(!dbg){
-      dbg=document.createElement('div');
-      dbg.id='serp-debug';
-      dbg.style.cssText='background:#0d0d0d;border:1px solid #444;border-radius:10px;padding:12px;margin-top:10px;font-size:11px;font-family:monospace;max-height:300px;overflow-y:auto;word-break:break-all';
-      const loading=document.getElementById('opor-loading');
-      if(loading) loading.insertAdjacentElement('afterend',dbg);
-    }
-    function addLog(msg,cor){ const d=document.createElement('div'); d.style.cssText='color:'+(cor||'#4ade80')+';margin-bottom:3px'; d.textContent=new Date().toLocaleTimeString()+' '+msg; dbg.appendChild(d); dbg.scrollTop=dbg.scrollHeight; }
-
-    addLog('Buscando: '+mat+' '+peso+' | URL: '+url.slice(0,80)+'...','#facc15');
+    // Chamada via Cloudflare Worker (resolve CORS)
+    const url=WORKER_URL+'?'+params.toString();
     try{
       const r=await fetch(url);
-      const rawText=await r.text();
-      addLog('HTTP '+r.status+' | '+rawText.length+' bytes recebidos','#86efac');
-      let data;
-      try{ data=JSON.parse(rawText); }
-      catch(pe){ addLog('JSON parse error: '+rawText.slice(0,200),'#f87171'); throw new Error('JSON parse: '+rawText.slice(0,100)); }
-      addLog('Keys: '+Object.keys(data).join(', '),'#a3e635');
-      addLog('shopping_results: '+(data.shopping_results||[]).length+' | error: '+(data.error||'none'),'#c4b5fd');
-      if(data.shopping_results&&data.shopping_results[0]) addLog('Primeiro item: '+JSON.stringify(data.shopping_results[0]).slice(0,200),'#60a5fa');
-
-      if(!r.ok||data.error){
-        const msg=(data.error||'SerpAPI error '+r.status);
-        if(msg.toLowerCase().includes('api key')||r.status===401||r.status===403){
-          clearInterval(progInt);
-          document.getElementById('opor-loading').style.display='none';
-          document.getElementById('opor-resultados').style.display='block';
-          document.getElementById('opor-resultados').innerHTML=`
-            <div style="background:rgba(255,107,107,.08);border:1.5px solid rgba(255,107,107,.4);border-radius:12px;padding:20px">
-              <div style="font-weight:700;color:var(--red);margin-bottom:8px">❌ Chave SerpAPI inválida</div>
-              <div style="font-size:13px;color:var(--muted);margin-bottom:12px">
-                Acesse <a href="https://serpapi.com/dashboard" target="_blank" style="color:var(--blue)">serpapi.com/dashboard</a>
-                e verifique sua API Key.
-              </div>
-              <a href="https://serpapi.com/dashboard" target="_blank" class="btn btn-ghost btn-sm">
-                <i class="ti ti-external-link"></i> Abrir Dashboard
-              </a>
-            </div>`;
-          return;
-        }
-        throw new Error(msg);
-      }
+      if(!r.ok) throw new Error('Worker HTTP '+r.status);
+      const data=await r.json();
+      if(data.error) throw new Error('SerpAPI: '+data.error);
 
       const items=data.shopping_results||[];
-      if(items.length===0){
-        // Sem resultados shopping — tenta organic
-        const organics=(data.organic_results||[]).slice(0,3);
-        organics.forEach((it,i)=>{
-          const preco=extrairPreco(it.price);
-          if(!preco) return;
-          const mkt=detectarMarketplace(it);
-          todosResultados.push({
-            material:mat,rank:i+1,
-            nome:it.title||('Filamento '+mat+' '+peso),
-            marca:'',marketplace:mkt,
-            preco,peso,frete:'Verificar',
-            avaliacao:'—',vendidos:'—',destaque:'',
-            link:it.link||linkBusca(mkt,mat,peso),
-            thumb:'',emoji_marketplace:MKT_EMOJI[mkt]||'🏪',
-            fonte:'Google Shopping'
-          });
-        });
-      }
-
       items.slice(0,8).forEach((it,i)=>{
         const preco=extrairPreco(it.price||it.extracted_price);
         const mkt=detectarMarketplace(it);
         todosResultados.push({
           material:mat,rank:i+1,
           nome:it.title||('Filamento '+mat+' '+peso),
-          marca:'',marketplace:mkt,
-          preco,peso,
+          marca:'',marketplace:mkt,preco,peso,
           frete:(!it.delivery||it.delivery.toLowerCase().includes('grát')||it.delivery.toLowerCase().includes('free'))?'Grátis':'Verificar',
           avaliacao:it.rating?String(it.rating):'—',
           vendidos:it.reviews?it.reviews+' av.':'—',
@@ -1848,51 +1827,35 @@ async function buscarOportunidades(){
           fonte:'Google Shopping'
         });
       });
-
     }catch(eg){
-      addLog('ERRO CATCH: '+eg.name+': '+eg.message,'#f87171');
-      addLog('Tipo: '+(eg instanceof TypeError?'TypeError (provavelmente CORS)':'outro'),'#fb923c');
-      console.error(mat+' SerpAPI error:',eg);
-      // Fallback silencioso com links diretos
+      console.error(mat,eg);
       MKTS_ALL.slice(0,3).forEach((mkt,i)=>todosResultados.push({
-        material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,
-        marca:'',marketplace:mkt,preco:null,peso,
-        frete:'Grátis',avaliacao:'—',vendidos:'—',destaque:'',
+        material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,marca:'',marketplace:mkt,
+        preco:null,peso,frete:'Grátis',avaliacao:'—',vendidos:'—',destaque:'',
         link:linkBusca(mkt,mat,peso),emoji_marketplace:MKT_EMOJI[mkt]||'🏪',fonte:'link direto'
       }));
     }
   }
 
-  // Ordena por preço dentro de cada material, mantém top 4
+  // Ordena por preço
   const porMat={};
-  todosResultados.forEach(r=>{
-    if(!porMat[r.material])porMat[r.material]=[];
-    porMat[r.material].push(r);
-  });
+  todosResultados.forEach(r=>{if(!porMat[r.material])porMat[r.material]=[];porMat[r.material].push(r);});
   const final=[];
   Object.values(porMat).forEach(arr=>{
-    arr.sort((a,b)=>{
-      if(a.preco&&b.preco)return a.preco-b.preco;
-      if(a.preco)return -1;if(b.preco)return 1;return 0;
-    });
-    arr.slice(0,4).forEach((r,i)=>{
-      r.rank=i+1;
-      if(i===0&&r.preco)r.destaque='🏆 Mais barato';
-    });
+    arr.sort((a,b)=>{if(a.preco&&b.preco)return a.preco-b.preco;if(a.preco)return -1;if(b.preco)return 1;return 0;});
+    arr.slice(0,4).forEach((r,i)=>{r.rank=i+1;if(i===0&&r.preco)r.destaque='🏆 Mais barato';});
     final.push(...arr.slice(0,4));
   });
 
   clearInterval(progInt);
   document.getElementById('opor-progress').style.width='100%';
-
   setTimeout(()=>{
     document.getElementById('opor-loading').style.display='none';
-    const temPrecos=final.some(r=>r.preco&&r.preco>0);
     renderOportunidades({
       resultados:final,
-      dica_geral:temPrecos
-        ?'✅ Preços reais do Google Shopping via SerpAPI. Clique em "Ver Produto" para abrir o produto direto.'
-        :'🔗 SerpAPI não retornou preços. Verifique sua chave ou use os links diretos abaixo.',
+      dica_geral:final.some(r=>r.preco&&r.preco>0)
+        ?'✅ Preços reais via Google Shopping (SerpAPI + Cloudflare Worker).'
+        :'🔗 Verifique se o Worker está funcionando. Use os links diretos abaixo.',
       ultima_atualizacao:hoje
     },materiais,MKTS_ALL,peso);
   },300);
