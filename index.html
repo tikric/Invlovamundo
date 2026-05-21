@@ -561,12 +561,58 @@ app.listen(3000);</div>
       <div style="background:linear-gradient(135deg,#1a1a2a,#1a1e2f);border:1px solid rgba(66,133,244,.3);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px">
         <div style="font-size:36px">🛒</div>
         <div style="flex:1">
-          <div style="font-size:17px;font-weight:700;color:var(--blue)">Cotação de Preços em Tempo Real</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:4px">Busca via IA com web search · Google Shopping · Shopee · Amazon · Mercado Livre</div>
+          <div style="font-size:17px;font-weight:700;color:var(--blue)">Cotação de Preços — Google Shopping</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">SerpAPI · Google Shopping real · Shopee · Amazon · Mercado Livre · AliExpress · Sem CAPTCHA</div>
         </div>
         <button class="btn" style="background:var(--blue);color:#fff;font-weight:700;min-width:140px" onclick="buscarOportunidades()">
           <i class="ti ti-search"></i> Buscar Preços
         </button>
+      </div>
+
+      <!-- SerpAPI Key -->
+      <div class="card" style="margin-bottom:16px;border-color:rgba(66,133,244,.3)">
+        <div class="card-header" style="margin-bottom:12px">
+          <div>
+            <div class="card-title" style="display:flex;align-items:center;gap:8px">
+              <i class="ti ti-brand-google" style="color:#4285F4;font-size:18px"></i>
+              SerpAPI — Google Shopping em Tempo Real
+            </div>
+            <div class="card-sub">100 buscas/mês grátis · Sem CAPTCHA · Preços reais · Funciona no GitHub Pages</div>
+          </div>
+          <a href="https://serpapi.com/users/sign_up" target="_blank" class="btn btn-ghost btn-sm" style="border-color:rgba(66,133,244,.4);color:var(--blue)">
+            <i class="ti ti-external-link"></i> Criar conta grátis
+          </a>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="flex:1;position:relative">
+            <input type="password" id="serp-api-key"
+              placeholder="Cole sua API Key aqui — serpapi.com → Dashboard → API Key"
+              style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 40px 9px 14px;font-size:13px;width:100%;outline:none;font-family:monospace"
+              oninput="salvarSerpKey(this.value)"
+              onfocus="this.style.borderColor='var(--blue)'"
+              onblur="this.style.borderColor='var(--border)'">
+            <button onclick="toggleKey('serp-api-key','eye-serp')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">
+              <i class="ti ti-eye" id="eye-serp"></i>
+            </button>
+          </div>
+          <div id="serp-status" style="font-size:12px;color:var(--muted);white-space:nowrap;min-width:90px">
+            <i class="ti ti-circle-x" style="color:var(--red)"></i> Não config.
+          </div>
+        </div>
+        <details style="margin-top:10px">
+          <summary style="font-size:12px;color:var(--blue);cursor:pointer">📖 Como obter sua chave grátis</summary>
+          <div style="margin-top:8px;font-size:12px;color:var(--muted);line-height:2;background:var(--bg);border-radius:8px;padding:12px">
+            1. Acesse <a href="https://serpapi.com/users/sign_up" target="_blank" style="color:var(--blue)">serpapi.com/users/sign_up</a> e crie uma conta gratuita<br>
+            2. Confirme o e-mail e faça login no Dashboard<br>
+            3. Copie sua <strong style="color:var(--text)">API Key</strong> e cole no campo acima<br>
+            4. Suba o site no GitHub Pages e a API funcionará perfeitamente<br>
+            <span style="color:var(--green)">✓ 100 buscas/mês grátis · Sem cartão · Sem CAPTCHA · GitHub Pages compatível</span>
+          </div>
+        </details>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:5px">
+          <i class="ti ti-lock" style="font-size:11px"></i>
+          Chave salva só no seu navegador (localStorage). Nunca enviada a nenhum servidor nosso.
+        </div>
       </div>
 
       <!-- Filtros -->
@@ -594,30 +640,28 @@ app.listen(3000);</div>
         </div>
       </div>
 
-      <!-- Buscador com Anthropic API -->
-      <div class="card" style="margin-bottom:16px;border-color:rgba(66,133,244,.3)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="font-size:20px">⚡</span>
-          <div>
-            <div class="card-title">Busca via IA com pesquisa web</div>
-            <div class="card-sub">Usa IA com web search para encontrar preços reais nos marketplaces</div>
-          </div>
+      <!-- Loading -->
+      <div id="opor-loading" style="display:none;text-align:center;padding:40px 24px">
+        <div style="font-size:36px;margin-bottom:12px;animation:spin 1.5s linear infinite;display:inline-block">⚙️</div>
+        <div style="font-size:15px;font-weight:600;color:var(--blue);margin-bottom:6px">Buscando no Google Shopping...</div>
+        <div style="font-size:12px;color:var(--muted)" id="opor-loading-msg">Consultando SerpAPI...</div>
+        <div style="background:var(--bg3);border-radius:8px;height:6px;margin:16px auto;max-width:300px;overflow:hidden">
+          <div id="opor-progress" style="height:100%;background:var(--blue);border-radius:8px;width:0%;transition:width .4s"></div>
         </div>
-        <div id="opor-loading" style="display:none;text-align:center;padding:32px">
-          <div style="font-size:32px;margin-bottom:10px;animation:spin 1.5s linear infinite;display:inline-block">🔍</div>
-          <div style="font-size:14px;font-weight:600;color:var(--blue);margin-bottom:4px" id="opor-loading-msg">Pesquisando preços...</div>
-          <div style="background:var(--bg3);border-radius:8px;height:6px;margin:12px auto;max-width:260px;overflow:hidden">
-            <div id="opor-progress" style="height:100%;background:var(--blue);border-radius:8px;width:0%;transition:width .5s"></div>
-          </div>
-        </div>
-        <div id="opor-estado-inicial" style="padding:16px 0;color:var(--muted);font-size:13px;text-align:center">
-          Selecione os materiais acima e clique em <strong style="color:var(--blue)">Buscar Preços</strong>
-        </div>
-        <div id="opor-resultados" style="display:none"></div>
       </div>
 
-      <!-- Links diretos sempre visíveis -->
-      <div class="card">
+      <!-- Estado inicial -->
+      <div id="opor-estado-inicial" style="text-align:center;padding:48px 24px;color:var(--muted)">
+        <div style="font-size:52px;margin-bottom:12px">🔍</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Pronto para cotar preços!</div>
+        <div style="font-size:13px">Configure sua chave SerpAPI acima e clique em <strong style="color:var(--blue)">"Buscar Preços"</strong></div>
+      </div>
+
+      <!-- Resultados -->
+      <div id="opor-resultados" style="display:none"></div>
+
+      <!-- Links diretos -->
+      <div class="card" style="margin-top:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="card-title">🔗 Links diretos — menor preço + frete grátis</div>
           <span style="font-size:11px;color:var(--muted)">Clique para abrir no marketplace</span>
@@ -1588,28 +1632,40 @@ function simular(){
 // ===== OPORTUNIDADES / MELHORES PREÇOS =====
 let oporHistorico=[];
 
-// stubs
-function salvarSerpKey(){}
+// stubs compatibilidade
 function salvarGroqKey(v){localStorage[v.trim()?'setItem':'removeItem']('groq_api_key',v.trim());}
 function salvarGeminiKey(v){localStorage[v.trim()?'setItem':'removeItem']('gemini_api_key',v.trim());}
 function salvarSerperKey(){}
 function salvarGoogleKey(){}
 function toggleGroqKey(){}
+function mostrarErroConfig(){}
+function limparHistoricoOpor(){}
+
+function salvarSerpKey(val){
+  const v=val.trim();
+  localStorage[v?'setItem':'removeItem']('serp_api_key',v);
+  const st=document.getElementById('serp-status');
+  if(st) st.innerHTML=v
+    ?'<i class="ti ti-circle-check" style="color:var(--green)"></i> <span style="color:var(--green)">OK ✓</span>'
+    :'<i class="ti ti-circle-x" style="color:var(--red)"></i> Não config.';
+}
 function toggleKey(id,ic){
   const inp=document.getElementById(id),ico=document.getElementById(ic);
   if(!inp)return;
   inp.type=inp.type==='password'?'text':'password';
   if(ico)ico.className=inp.type==='text'?'ti ti-eye-off':'ti ti-eye';
 }
-function mostrarErroConfig(){}
-function limparHistoricoOpor(){}
-function initApiKeys(){ renderTabelaLinks(); }
+function initApiKeys(){
+  const sk=localStorage.getItem('serp_api_key');
+  if(sk){const el=document.getElementById('serp-api-key');if(el)el.value=sk;salvarSerpKey(sk);}
+  renderTabelaLinks();
+}
 
 const MAT_COR={PLA:'var(--green)',PETG:'var(--blue)',TPU:'var(--purple)',ABS:'var(--orange)',ASA:'var(--teal)'};
 const MKT_COR={Shopee:'#ee4d2d',Amazon:'#ff9900','Mercado Livre':'#f5a623',AliExpress:'#ff6a00'};
 const MKT_EMOJI={Shopee:'🛍',Amazon:'📦','Mercado Livre':'🛒',AliExpress:'🌐'};
-const MATERIAIS=['PLA','PETG','TPU','ABS','ASA'];
-const MKTS=['Shopee','Amazon','Mercado Livre','AliExpress'];
+const MATERIAIS_ALL=['PLA','PETG','TPU','ABS','ASA'];
+const MKTS_ALL=['Shopee','Amazon','Mercado Livre','AliExpress'];
 
 function linkBusca(marketplace,termo,peso){
   const q=encodeURIComponent('filamento '+termo+' '+peso+' 1.75mm');
@@ -1624,10 +1680,10 @@ function renderTabelaLinks(){
   const tbody=document.getElementById('tbody-links');
   if(!tbody)return;
   const peso=document.getElementById('fil-peso')?.value||'1kg';
-  tbody.innerHTML=MATERIAIS.map(mat=>`
+  tbody.innerHTML=MATERIAIS_ALL.map(mat=>`
     <tr style="border-bottom:1px solid var(--border)">
       <td style="padding:10px 12px;font-weight:700;color:${MAT_COR[mat]}">${mat}</td>
-      ${MKTS.map(mkt=>`<td style="padding:8px 12px;text-align:center">
+      ${MKTS_ALL.map(mkt=>`<td style="padding:8px 12px;text-align:center">
         <a href="${linkBusca(mkt,mat,peso)}" target="_blank"
           style="color:${MKT_COR[mkt]};font-size:12px;display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none">
           <i class="ti ti-search" style="font-size:11px"></i> Ver preços
@@ -1643,7 +1699,32 @@ function gerarFallback(materiais,mkts,peso){
   })))};
 }
 
+// Detecta marketplace pelo source/link retornado pelo SerpAPI
+function detectarMarketplace(item){
+  const txt=((item.source||'')+(item.link||'')+(item.seller||'')).toLowerCase();
+  if(txt.includes('shopee'))       return 'Shopee';
+  if(txt.includes('amazon'))       return 'Amazon';
+  if(txt.includes('mercadolivre')||txt.includes('mercado livre')||txt.includes('meli')) return 'Mercado Livre';
+  if(txt.includes('aliexpress'))   return 'AliExpress';
+  return item.source||'Outros';
+}
+
+// Extrai preço numérico de string como "R$ 54,90" ou "54.90"
+function extrairPreco(str){
+  if(!str) return null;
+  const s=str.toString().replace(/[^\d.,]/g,'').replace(',','.');
+  const n=parseFloat(s);
+  return isNaN(n)||n<=0?null:n;
+}
+
 async function buscarOportunidades(){
+  const KEY=(document.getElementById('serp-api-key')?.value||'').trim()||localStorage.getItem('serp_api_key')||'';
+  if(!KEY){
+    toast('⚠️ Configure sua chave SerpAPI — grátis em serpapi.com','var(--orange)');
+    document.getElementById('serp-api-key')?.focus();
+    return;
+  }
+
   const materiais=[];
   if(document.getElementById('mat-pla')?.checked)  materiais.push('PLA');
   if(document.getElementById('mat-petg')?.checked) materiais.push('PETG');
@@ -1659,91 +1740,141 @@ async function buscarOportunidades(){
 
   let prog=0;
   const progInt=setInterval(()=>{
-    prog=Math.min(prog+2,90);
+    prog=Math.min(prog+3,88);
     const el=document.getElementById('opor-progress');
     if(el)el.style.width=prog+'%';
-  },600);
+  },400);
   const setMsg=m=>{const el=document.getElementById('opor-loading-msg');if(el)el.textContent=m;};
 
   const hoje=new Date().toLocaleDateString('pt-BR');
-  setMsg('🔍 Pesquisando preços de '+materiais.join(', ')+' nos marketplaces...');
+  const todosResultados=[];
 
-  const prompt=
-    'Pesquise agora no Google os preços mais baratos de filamentos para impressão 3D no Brasil. '+
-    'Materiais: '+materiais.join(', ')+' — '+peso+' — 1.75mm — com frete grátis. '+
-    'Busque em: shopee.com.br, amazon.com.br, mercadolivre.com.br, aliexpress.com. '+
-    'Para cada material liste os 3 produtos mais baratos com nome, preço em reais, link direto e marketplace. '+
-    'Responda SOMENTE com este JSON sem texto adicional:\n'+
-    '{"resultados":[{"material":"PLA","rank":1,"nome":"Nome do produto","marca":"Marca","marketplace":"Shopee","preco":54.90,"peso":"'+peso+'","frete":"Grátis","avaliacao":"4.8","vendidos":"2k","destaque":"Mais barato","link":"https://link-real","emoji_marketplace":"🛍","fonte":"busca web"}],"dica_geral":"dica","ultima_atualizacao":"'+hoje+'"}';
+  for(const mat of materiais){
+    setMsg('🔍 Google Shopping: '+mat+' '+peso+'...');
 
-  try{
-    setMsg('⚡ IA buscando preços no Google...');
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:3000,
-        tools:[{type:'web_search_20250305',name:'web_search'}],
-        system:'Você busca preços de produtos. Use web_search. Responda SOMENTE JSON válido.',
-        messages:[{role:'user',content:prompt}]
-      })
+    const query='filamento '+mat+' '+peso+' 1.75mm';
+    // SerpAPI endpoint direto — funciona de qualquer origem com CORS habilitado
+    const url='https://serpapi.com/search.json?'+new URLSearchParams({
+      api_key:KEY,
+      engine:'google_shopping',
+      q:query,
+      gl:'br',
+      hl:'pt',
+      num:'10',
+      tbs:'mr:1,price:1,ppr_max:350'
     });
 
-    const data=await resp.json();
+    try{
+      const r=await fetch(url);
+      const data=await r.json();
 
-    if(!resp.ok){
-      throw new Error(data.error?.message||'API error '+resp.status);
+      if(!r.ok||data.error){
+        const msg=(data.error||'SerpAPI error '+r.status);
+        if(msg.toLowerCase().includes('api key')||r.status===401||r.status===403){
+          clearInterval(progInt);
+          document.getElementById('opor-loading').style.display='none';
+          document.getElementById('opor-resultados').style.display='block';
+          document.getElementById('opor-resultados').innerHTML=`
+            <div style="background:rgba(255,107,107,.08);border:1.5px solid rgba(255,107,107,.4);border-radius:12px;padding:20px">
+              <div style="font-weight:700;color:var(--red);margin-bottom:8px">❌ Chave SerpAPI inválida</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:12px">
+                Acesse <a href="https://serpapi.com/dashboard" target="_blank" style="color:var(--blue)">serpapi.com/dashboard</a>
+                e verifique sua API Key.
+              </div>
+              <a href="https://serpapi.com/dashboard" target="_blank" class="btn btn-ghost btn-sm">
+                <i class="ti ti-external-link"></i> Abrir Dashboard
+              </a>
+            </div>`;
+          return;
+        }
+        throw new Error(msg);
+      }
+
+      const items=data.shopping_results||[];
+      if(items.length===0){
+        // Sem resultados shopping — tenta organic
+        const organics=(data.organic_results||[]).slice(0,3);
+        organics.forEach((it,i)=>{
+          const preco=extrairPreco(it.price);
+          if(!preco) return;
+          const mkt=detectarMarketplace(it);
+          todosResultados.push({
+            material:mat,rank:i+1,
+            nome:it.title||('Filamento '+mat+' '+peso),
+            marca:'',marketplace:mkt,
+            preco,peso,frete:'Verificar',
+            avaliacao:'—',vendidos:'—',destaque:'',
+            link:it.link||linkBusca(mkt,mat,peso),
+            thumb:'',emoji_marketplace:MKT_EMOJI[mkt]||'🏪',
+            fonte:'Google Shopping'
+          });
+        });
+      }
+
+      items.slice(0,8).forEach((it,i)=>{
+        const preco=extrairPreco(it.price||it.extracted_price);
+        const mkt=detectarMarketplace(it);
+        todosResultados.push({
+          material:mat,rank:i+1,
+          nome:it.title||('Filamento '+mat+' '+peso),
+          marca:'',marketplace:mkt,
+          preco,peso,
+          frete:(!it.delivery||it.delivery.toLowerCase().includes('grát')||it.delivery.toLowerCase().includes('free'))?'Grátis':'Verificar',
+          avaliacao:it.rating?String(it.rating):'—',
+          vendidos:it.reviews?it.reviews+' av.':'—',
+          destaque:'',
+          link:it.product_link||it.link||linkBusca(mkt,mat,peso),
+          thumb:it.thumbnail||'',
+          emoji_marketplace:MKT_EMOJI[mkt]||'🏪',
+          fonte:'Google Shopping'
+        });
+      });
+
+    }catch(eg){
+      console.error(mat+' SerpAPI error:',eg);
+      // Fallback silencioso com links diretos
+      MKTS_ALL.slice(0,3).forEach((mkt,i)=>todosResultados.push({
+        material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,
+        marca:'',marketplace:mkt,preco:null,peso,
+        frete:'Grátis',avaliacao:'—',vendidos:'—',destaque:'',
+        link:linkBusca(mkt,mat,peso),emoji_marketplace:MKT_EMOJI[mkt]||'🏪',fonte:'link direto'
+      }));
     }
-
-    setMsg('📊 Processando resultados...');
-
-    // Extrai texto de todos os blocos
-    const texto=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const raw=texto.replace(/```json|```/gi,'').trim();
-    const match=raw.match(/\{[\s\S]*"resultados"[\s\S]*\}/);
-
-    if(!match) throw new Error('Sem JSON na resposta');
-
-    const json=JSON.parse(match[0]);
-
-    // Filtra resultados válidos
-    json.resultados=(json.resultados||[]).filter(r=>
-      r.nome&&r.nome!=='null'&&
-      r.preco&&parseFloat(r.preco)>0&&
-      r.link&&r.link.startsWith('http')
-    ).map(r=>{
-      r.preco=parseFloat(r.preco);
-      if(!r.emoji_marketplace) r.emoji_marketplace=MKT_EMOJI[r.marketplace]||'🏪';
-      return r;
-    });
-
-    if(json.resultados.length===0) throw new Error('Nenhum resultado válido retornado pela busca');
-
-    clearInterval(progInt);
-    document.getElementById('opor-progress').style.width='100%';
-    setTimeout(()=>{
-      document.getElementById('opor-loading').style.display='none';
-      renderOportunidades(json,materiais,MKTS,peso);
-    },300);
-
-  }catch(err){
-    clearInterval(progInt);
-    document.getElementById('opor-loading').style.display='none';
-
-    // Mostra mensagem de erro clara + links diretos como fallback
-    const div=document.getElementById('opor-resultados');
-    div.style.display='block';
-    div.innerHTML=`
-      <div style="background:rgba(255,159,67,.08);border:1px solid rgba(255,159,67,.3);border-radius:10px;padding:16px;margin-bottom:12px">
-        <div style="font-weight:600;color:var(--orange);margin-bottom:4px">⚠️ Busca automática indisponível</div>
-        <div style="font-size:12px;color:var(--muted)">${err.message}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:6px">Use os links diretos abaixo para ver os preços nos marketplaces.</div>
-      </div>`;
-
-    // Mostra fallback com links diretos
-    renderOportunidades(gerarFallback(materiais,MKTS,peso),materiais,MKTS,peso);
   }
+
+  // Ordena por preço dentro de cada material, mantém top 4
+  const porMat={};
+  todosResultados.forEach(r=>{
+    if(!porMat[r.material])porMat[r.material]=[];
+    porMat[r.material].push(r);
+  });
+  const final=[];
+  Object.values(porMat).forEach(arr=>{
+    arr.sort((a,b)=>{
+      if(a.preco&&b.preco)return a.preco-b.preco;
+      if(a.preco)return -1;if(b.preco)return 1;return 0;
+    });
+    arr.slice(0,4).forEach((r,i)=>{
+      r.rank=i+1;
+      if(i===0&&r.preco)r.destaque='🏆 Mais barato';
+    });
+    final.push(...arr.slice(0,4));
+  });
+
+  clearInterval(progInt);
+  document.getElementById('opor-progress').style.width='100%';
+
+  setTimeout(()=>{
+    document.getElementById('opor-loading').style.display='none';
+    const temPrecos=final.some(r=>r.preco&&r.preco>0);
+    renderOportunidades({
+      resultados:final,
+      dica_geral:temPrecos
+        ?'✅ Preços reais do Google Shopping via SerpAPI. Clique em "Ver Produto" para abrir o produto direto.'
+        :'🔗 SerpAPI não retornou preços. Verifique sua chave ou use os links diretos abaixo.',
+      ultima_atualizacao:hoje
+    },materiais,MKTS_ALL,peso);
+  },300);
 }
 
 // Fallback: links REAIS de busca já filtrados por menor preço + frete grátis
