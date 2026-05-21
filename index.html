@@ -1764,28 +1764,28 @@ async function buscarOportunidades(){
       tbs:'mr:1,price:1,ppr_max:350'
     });
 
+    // Painel de debug — criado ANTES do fetch para capturar erros de CORS
+    let dbg=document.getElementById('serp-debug');
+    if(!dbg){
+      dbg=document.createElement('div');
+      dbg.id='serp-debug';
+      dbg.style.cssText='background:#0d0d0d;border:1px solid #444;border-radius:10px;padding:12px;margin-top:10px;font-size:11px;font-family:monospace;max-height:300px;overflow-y:auto;word-break:break-all';
+      const loading=document.getElementById('opor-loading');
+      if(loading) loading.insertAdjacentElement('afterend',dbg);
+    }
+    function addLog(msg,cor){ const d=document.createElement('div'); d.style.cssText='color:'+(cor||'#4ade80')+';margin-bottom:3px'; d.textContent=new Date().toLocaleTimeString()+' '+msg; dbg.appendChild(d); dbg.scrollTop=dbg.scrollHeight; }
+
+    addLog('Buscando: '+mat+' '+peso+' | URL: '+url.slice(0,80)+'...','#facc15');
     try{
       const r=await fetch(url);
       const rawText=await r.text();
-      // Log raw response for debugging
-      console.log('[SerpAPI RAW '+mat+']', rawText.slice(0,500));
+      addLog('HTTP '+r.status+' | '+rawText.length+' bytes recebidos','#86efac');
       let data;
       try{ data=JSON.parse(rawText); }
-      catch(pe){ throw new Error('JSON parse error: '+rawText.slice(0,200)); }
-      // Show debug panel
-      let dbg=document.getElementById('serp-debug');
-      if(!dbg){
-        dbg=document.createElement('div');
-        dbg.id='serp-debug';
-        dbg.style.cssText='background:#0d0d0d;border:1px solid #333;border-radius:10px;padding:12px;margin-top:10px;font-size:11px;font-family:monospace;max-height:260px;overflow-y:auto;word-break:break-all';
-        document.getElementById('opor-loading').after(dbg);
-      }
-      const dline=document.createElement('div');
-      dline.style.color='#4ade80';
-      dline.style.marginBottom='4px';
-      const preview=JSON.stringify(data).slice(0,600);
-      dline.textContent='['+mat+'] HTTP '+r.status+' | keys: '+Object.keys(data).join(',')+' | shopping_results: '+(data.shopping_results||[]).length+' | preview: '+preview;
-      dbg.appendChild(dline);
+      catch(pe){ addLog('JSON parse error: '+rawText.slice(0,200),'#f87171'); throw new Error('JSON parse: '+rawText.slice(0,100)); }
+      addLog('Keys: '+Object.keys(data).join(', '),'#a3e635');
+      addLog('shopping_results: '+(data.shopping_results||[]).length+' | error: '+(data.error||'none'),'#c4b5fd');
+      if(data.shopping_results&&data.shopping_results[0]) addLog('Primeiro item: '+JSON.stringify(data.shopping_results[0]).slice(0,200),'#60a5fa');
 
       if(!r.ok||data.error){
         const msg=(data.error||'SerpAPI error '+r.status);
@@ -1850,6 +1850,8 @@ async function buscarOportunidades(){
       });
 
     }catch(eg){
+      addLog('ERRO CATCH: '+eg.name+': '+eg.message,'#f87171');
+      addLog('Tipo: '+(eg instanceof TypeError?'TypeError (provavelmente CORS)':'outro'),'#fb923c');
       console.error(mat+' SerpAPI error:',eg);
       // Fallback silencioso com links diretos
       MKTS_ALL.slice(0,3).forEach((mkt,i)=>todosResultados.push({
