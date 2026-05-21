@@ -233,6 +233,39 @@ select option{background:var(--bg2);color:var(--text)}
 
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
+
+      <!-- Widget Cotacao Rapida -->
+      <div class="card" style="margin-bottom:16px;border-color:rgba(66,133,244,.3)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:22px">🛒</span>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text)">Cotação de Filamentos — Tempo Real</div>
+              <div style="font-size:11px;color:var(--muted)">Google Shopping · Menores preços com frete grátis</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="dash-mat" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px;outline:none">
+              <option value="PLA">PLA</option><option value="PETG">PETG</option><option value="TPU">TPU</option><option value="ABS">ABS</option><option value="ASA">ASA</option>
+            </select>
+            <select id="dash-peso" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px;outline:none">
+              <option value="1kg">1 kg</option><option value="500g">500g</option><option value="2kg">2 kg</option>
+            </select>
+            <button onclick="buscarCotacaoDash()" id="dash-buscar-btn" class="btn" style="background:var(--blue);color:#fff;font-size:12px;padding:6px 14px;font-weight:600">
+              <i class="ti ti-search"></i> Cotar agora
+            </button>
+            <button onclick="nav('oportunidades')" class="btn btn-ghost" style="font-size:12px;padding:6px 12px">
+              Ver todos <i class="ti ti-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        <div id="dash-cotacao-resultado">
+          <div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">
+            Selecione o material e clique em <strong style="color:var(--blue)">Cotar agora</strong>
+          </div>
+        </div>
+      </div>
+
       <div class="metrics" id="metrics-dash"></div>
       <div class="grid2">
         <div class="card">
@@ -1745,6 +1778,65 @@ function renderTabelaLinks(){
         </a></td>`).join('')}
     </tr>`).join('');
 }
+// ===== WIDGET DE COTACAO NO DASHBOARD =====
+async function buscarCotacaoDash(){
+  const SERP_KEY=localStorage.getItem('serp_api_key')||'';
+  const WORKER_URL=(localStorage.getItem('worker_url')||'').replace(/\/$/,'');
+  const mat=document.getElementById('dash-mat')?.value||'PLA';
+  const peso=document.getElementById('dash-peso')?.value||'1kg';
+  const res=document.getElementById('dash-cotacao-resultado');
+  const btn=document.getElementById('dash-buscar-btn');
+
+  if(!SERP_KEY||!WORKER_URL){
+    res.innerHTML='<div style="text-align:center;padding:12px;font-size:12px;color:var(--orange)">⚠️ Configure as chaves SerpAPI e Worker URL na seção <a href="#" onclick="nav(\'oportunidades\');return false" style="color:var(--blue);font-size:12px">Melhores Preços</a></div>';
+    return;
+  }
+
+  btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Buscando...';
+  btn.disabled=true;
+  res.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">🔍 Consultando Google Shopping...</div>';
+
+  try{
+    const params=new URLSearchParams({api_key:SERP_KEY,engine:'google_shopping',q:'filamento '+mat+' '+peso+' 1.75mm',gl:'br',hl:'pt',num:'6'});
+    const r=await fetch(WORKER_URL+'?'+params.toString());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    if(data.error) throw new Error(data.error);
+
+    const items=(data.shopping_results||[]).slice(0,4);
+    if(!items.length) throw new Error('Sem resultados');
+
+    const MKT_COR={shopee:'#ee4d2d',amazon:'#ff9900',mercadolivre:'#f5a623',aliexpress:'#ff6a00'};
+    function getMktCor(src){ const s=(src||'').toLowerCase(); if(s.includes('shopee'))return'#ee4d2d'; if(s.includes('amazon'))return'#ff9900'; if(s.includes('mercadolivre')||s.includes('mercado'))return'#f5a623'; if(s.includes('aliexpress'))return'#ff6a00'; return'var(--blue)'; }
+    function extrairPrecoNum(str){ if(!str&&str!==0)return null; const n=parseFloat(str.toString().replace(/[^\d.,]/g,'').replace(',','.')); return isNaN(n)||n<=0?null:n; }
+
+    const sorted=items.filter(it=>extrairPrecoNum(it.price||it.extracted_price)).sort((a,b)=>(extrairPrecoNum(a.price||a.extracted_price)||999)-(extrairPrecoNum(b.price||b.extracted_price)||999));
+
+    res.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">'+
+      sorted.map((it,i)=>{
+        const preco=extrairPrecoNum(it.price||it.extracted_price);
+        const cor=getMktCor(it.source||it.link);
+        const link=it.product_link||it.link||'#';
+        const thumb=it.thumbnail||'';
+        return '<a href="'+link+'" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+cor+';border-radius:8px;padding:10px 12px;text-decoration:none;display:flex;gap:10px;align-items:center">'+
+          (thumb?'<img src="'+thumb+'" style="width:40px;height:40px;object-fit:contain;border-radius:4px;background:#fff;flex-shrink:0">':'')+
+          '<div style="min-width:0;flex:1">'+
+          (i===0?'<div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:2px">🏆 MAIS BARATO</div>':'')+
+          '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(it.source||'Loja')+'</div>'+
+          '<div style="font-size:16px;font-weight:800;color:var(--green)">R$ '+(preco?preco.toFixed(2).replace('.',','):'—')+'</div>'+
+          '<div style="font-size:10px;color:var(--muted)">'+mat+' '+peso+' · 1.75mm</div>'+
+          '</div></a>';
+      }).join('')+
+    '</div><div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:right">Google Shopping · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</div>';
+
+  }catch(eg){
+    res.innerHTML='<div style="padding:10px;font-size:12px;color:var(--orange)">⚠️ '+eg.message+'</div>';
+  }finally{
+    btn.innerHTML='<i class="ti ti-search"></i> Cotar agora';
+    btn.disabled=false;
+  }
+}
+
 function gerarFallback(materiais,mkts,peso){
   return {resultados:materiais.flatMap(mat=>mkts.slice(0,3).map((mkt,i)=>({
     material:mat,rank:i+1,nome:'Filamento '+mat+' '+peso,marca:'',marketplace:mkt,
@@ -1862,6 +1954,65 @@ async function buscarOportunidades(){
 }
 
 // Fallback: links REAIS de busca já filtrados por menor preço + frete grátis
+// ===== WIDGET DE COTACAO NO DASHBOARD =====
+async function buscarCotacaoDash(){
+  const SERP_KEY=localStorage.getItem('serp_api_key')||'';
+  const WORKER_URL=(localStorage.getItem('worker_url')||'').replace(/\/$/,'');
+  const mat=document.getElementById('dash-mat')?.value||'PLA';
+  const peso=document.getElementById('dash-peso')?.value||'1kg';
+  const res=document.getElementById('dash-cotacao-resultado');
+  const btn=document.getElementById('dash-buscar-btn');
+
+  if(!SERP_KEY||!WORKER_URL){
+    res.innerHTML='<div style="text-align:center;padding:12px;font-size:12px;color:var(--orange)">⚠️ Configure as chaves SerpAPI e Worker URL na seção <a href="#" onclick="nav(\'oportunidades\');return false" style="color:var(--blue);font-size:12px">Melhores Preços</a></div>';
+    return;
+  }
+
+  btn.innerHTML='<i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Buscando...';
+  btn.disabled=true;
+  res.innerHTML='<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">🔍 Consultando Google Shopping...</div>';
+
+  try{
+    const params=new URLSearchParams({api_key:SERP_KEY,engine:'google_shopping',q:'filamento '+mat+' '+peso+' 1.75mm',gl:'br',hl:'pt',num:'6'});
+    const r=await fetch(WORKER_URL+'?'+params.toString());
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    if(data.error) throw new Error(data.error);
+
+    const items=(data.shopping_results||[]).slice(0,4);
+    if(!items.length) throw new Error('Sem resultados');
+
+    const MKT_COR={shopee:'#ee4d2d',amazon:'#ff9900',mercadolivre:'#f5a623',aliexpress:'#ff6a00'};
+    function getMktCor(src){ const s=(src||'').toLowerCase(); if(s.includes('shopee'))return'#ee4d2d'; if(s.includes('amazon'))return'#ff9900'; if(s.includes('mercadolivre')||s.includes('mercado'))return'#f5a623'; if(s.includes('aliexpress'))return'#ff6a00'; return'var(--blue)'; }
+    function extrairPrecoNum(str){ if(!str&&str!==0)return null; const n=parseFloat(str.toString().replace(/[^\d.,]/g,'').replace(',','.')); return isNaN(n)||n<=0?null:n; }
+
+    const sorted=items.filter(it=>extrairPrecoNum(it.price||it.extracted_price)).sort((a,b)=>(extrairPrecoNum(a.price||a.extracted_price)||999)-(extrairPrecoNum(b.price||b.extracted_price)||999));
+
+    res.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">'+
+      sorted.map((it,i)=>{
+        const preco=extrairPrecoNum(it.price||it.extracted_price);
+        const cor=getMktCor(it.source||it.link);
+        const link=it.product_link||it.link||'#';
+        const thumb=it.thumbnail||'';
+        return '<a href="'+link+'" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid '+cor+';border-radius:8px;padding:10px 12px;text-decoration:none;display:flex;gap:10px;align-items:center">'+
+          (thumb?'<img src="'+thumb+'" style="width:40px;height:40px;object-fit:contain;border-radius:4px;background:#fff;flex-shrink:0">':'')+
+          '<div style="min-width:0;flex:1">'+
+          (i===0?'<div style="font-size:10px;color:var(--green);font-weight:700;margin-bottom:2px">🏆 MAIS BARATO</div>':'')+
+          '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(it.source||'Loja')+'</div>'+
+          '<div style="font-size:16px;font-weight:800;color:var(--green)">R$ '+(preco?preco.toFixed(2).replace('.',','):'—')+'</div>'+
+          '<div style="font-size:10px;color:var(--muted)">'+mat+' '+peso+' · 1.75mm</div>'+
+          '</div></a>';
+      }).join('')+
+    '</div><div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:right">Google Shopping · '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</div>';
+
+  }catch(eg){
+    res.innerHTML='<div style="padding:10px;font-size:12px;color:var(--orange)">⚠️ '+eg.message+'</div>';
+  }finally{
+    btn.innerHTML='<i class="ti ti-search"></i> Cotar agora';
+    btn.disabled=false;
+  }
+}
+
 function gerarFallback(materiais,mkts,peso){
   const mktEmoji={Shopee:'🛍',Amazon:'📦','Mercado Livre':'🛒',AliExpress:'🌐'};
   const resultados=[];
