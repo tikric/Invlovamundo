@@ -1,6 +1,6 @@
 {
-  "name": "PrintFlow 3D",
-  "description": "Gerenciador completo de produção, clientes e pesquisa inteligente de preços de filamento de 1kg no mercado brasileiro.",
+  "name": "Bambuzau 3D",
+  "description": "Gerenciador completo de produção, clientes e pesquisa inteligente de preços de filamento de 1kg no mercado brasileiro personalizado para Bambuzau 3D.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
